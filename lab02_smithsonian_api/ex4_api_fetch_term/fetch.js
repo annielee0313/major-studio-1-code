@@ -2,7 +2,7 @@
 // check API documentation for terms here: http://edan.si.edu/openaccess/apidocs/#api-search-terms
 
 // put your API key here;
-const apiKey = "";  
+const apiKey = "RLaXwT4AAXNEi9zDr6nd9cytOb4iWfhAl40ugta1";  
 
 // Access to terms by term category (I.e. online_media_type > Images)
 const termBaseURL = "https://api.si.edu/openaccess/api/v1.0/terms/";
