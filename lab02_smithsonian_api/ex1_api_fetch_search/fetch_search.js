@@ -8,7 +8,7 @@ const apiKey = "RLaXwT4AAXNEi9zDr6nd9cytOb4iWfhAl40ugta1";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // Constructing the search query
-const search =  `Orchids AND Pollination Syndrome AND online_media_type:"Images" AND object_type:"Living botanical specimens"`;
+const search =  `Orchids AND bloom time AND online_media_type:"Images" AND object_type:"Living botanical specimens"`;
 
 
 // https://collections.si.edu/search/results.htm?q=Flowers&view=grid&fq=data_source%3A%22Cooper+Hewitt%2C+Smithsonian+Design+Museum%22&fq=online_media_type%3A%22Images%22&media.CC0=true&fq=object_type:%22Embroidery+%28visual+works%29%22
@@ -30,3 +30,4 @@ function fetchSearchData(searchTerm) {
 }
 
 fetchSearchData(search);
+
