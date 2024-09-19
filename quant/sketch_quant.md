@@ -37,3 +37,9 @@ The tool allows users to zoom into specific regions and switch between a geograp
 
 
 
+
+### Quant Mock Up
+![quant_mock](https://github.com/user-attachments/assets/2cdd8ed4-4b0b-4320-b94c-78e6746e9b6d)
+
+
+
