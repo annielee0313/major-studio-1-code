@@ -35,7 +35,7 @@ function analyzeData(){
   });
 
   // sort by amount of items in the list
-  allPlaces.sort((a, b) => (a.count < b.count) ? 1 : -1);
+  allPlaces.sort((a, b) => (a.count < b.count) ? 1 : -1); //?: if else
   // console.log(allPlaces)
 }
 

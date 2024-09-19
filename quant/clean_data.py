@@ -58,7 +58,7 @@ for item in data:
     
     if common_name not in seen:
         seen.add(common_name)
-        
+ 
         # Normalize bloom time
         bloom_time, peaks = normalize_bloom_time(item.get('bloom_time', ''))
         

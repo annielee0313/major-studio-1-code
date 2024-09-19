@@ -4,9 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>Month Scroll Example</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <title>Blooming Orchids</title>
 </head>
 <body>
+    <!-- Life form buttons -->
+    <div id="filter-buttons">
+        <button id="epiphytic" class="filter-button">Epiphytic</button>
+        <button id="terrestrial" class="filter-button">Terrestrial</button>
+        <button id="lithophytic" class="filter-button">Lithophytic</button>
+    </div>
+
+    <div id="title">Blooming Orchids</div>
+    <div id="subtitle">in the Northern Hemisphere</div>
+
     <!-- Container for the month scale -->
     <div id="month-scale"></div>
     
@@ -17,6 +28,11 @@
     
     <!-- Indicator for the current month -->
     <div id="current-month-indicator"></div>
+
+    <!-- Bubble chart -->
+    <div id="bubble-chart-container">
+        <svg id="bubble-chart"></svg>
+    </div>
   
     <script src="main.js"></script>
 </body>
