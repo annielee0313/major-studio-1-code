@@ -1,3 +1,13 @@
+@font-face {
+    font-family: 'PPGoshaSans';
+    src: url('./fonts/PPGoshaSans-Regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'PPNeueMontreal';
+    src: url('./fonts/PPNeueMontreal-Regular.otf') format('opentype');
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -7,66 +17,70 @@ body {
 
 #title {
     position: fixed;
-    top: 90px;
+    top: 70px;
     left: 50px;
-    font-size: 72px;
+    font-size: 98px;
     color:#BBFFB0;
+    font-family: 'PPGoshaSans', sans-serif;
 }
 
 #subtitle {
     position: fixed;
-    top: 170px;
-    left: 50px;
+    top: 190px;
+    left: 52px;
     font-size: 48px;
     color:#FFFFFF;
+    font-family: 'PPGoshaSans', sans-serif;
 }
 
 #month-scale {
     position: fixed;
-    top: 0;
-    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
     height: 60%;
     width: 80px;
     background: #072007;
     /* border-left: 1px solid #ccc;*/
+    font-size: 18px;
+    font-family: 'PPGoshaSans', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 1000;
-
     overflow: hidden;
 }
 
 #month-scale div {
     flex: 1; /* Make each month label take up equal space */
+    height: calc(100% / 12);
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid #ccc; /* for visual separation */
-    color: #BBFFB0; /* Change text color here */
+    color: #FFFFFF; /* Change text color here */
 
 }
 
 #content {
-    margin-right: 80px; /* Leave space for the month scale */
     height: 3600px; /* Adjust to simulate scrolling */
-    background: #fafafa;
 }
 
 #current-month-indicator {
     position: fixed;
-    top: 0;
-    right: 80px; /* Align with the month scale */
-    width: 50px;
-    height: 2px;
+    right: 10px; /* Align with the month scale */
+    width: 100px;
+    height: 3px;
     background: #BBFFB0;
     z-index: 1001;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 #bubble-chart-container {
     position: fixed;
     bottom: 0;
-    width: 100%;
+    width: 90%;
     height: 60vh;  /* Half of the view height to mimic the northern hemisphere */
     display: flex;
     justify-content: center;
@@ -76,7 +90,7 @@ body {
     width: 90%; /* Adjust to 90% of the container's width */
     height: 100%; /* Adjust to fill 100% of the container's height */
     clip-path: ellipse(50% 100% at 50% 100%); /* Clip to a semicircle */
-    background-color: lightgrey; /* Optional: background for the semicircle */
+    background-color: #1B3227; /* Optional: background for the semicircle */
 }
 
 .tooltip {
@@ -90,16 +104,20 @@ body {
 
 #filter-buttons { 
     position: fixed;
-    top: 50px;
+    top: 270px;
     left: 50px;
 }
 
 .filter-button {
     margin: 5px;
-    padding: 10 px;
+    padding: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
     border: none;
     background-color: #ddd;
     cursor: pointer;
+    font-family: 'PPGoshaSans', sans-serif;
+    font-size: 18px;
 }
 
 .filter-button.active {

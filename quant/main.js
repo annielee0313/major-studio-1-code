@@ -32,6 +32,13 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("cx", 0)
         .attr("cy", 0);
 
+    // Preload all image URLs once the data is available
+    data.forEach(d => {
+        const img = new Image();
+        img.src = d.image_url;  // Start loading the image in the browser cache
+    });
+
+
 
       // Function to update the bubble chart based on the month
       function updateChart(month) {
@@ -56,8 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Create a simulation for the bubble chart
         const simulation = d3.forceSimulation(filteredData)
-          .force("x", d3.forceX(centerX).strength(0.05))
-          .force("y", d3.forceY(centerY).strength(0.05))  // Center Y to the lower half
+          .force("x", d3.forceX(centerX).strength(0.03))
+          .force("y", d3.forceY(centerY).strength(0.03))  // Center Y to the lower half
           .force("collide", d3.forceCollide(radius + 5))  // Use the calculated radius for collision
           .stop();
 
@@ -152,18 +159,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const scrollY = window.scrollY;
         const viewportHeight = window.innerHeight;
         const totalHeight = document.documentElement.scrollHeight - viewportHeight;
-
+    
         // Calculate the current month based on scroll position
-        const monthIndex = Math.floor((scrollY / totalHeight) * 12);
-        const monthLabel = months[Math.max(0, Math.min(11, monthIndex))];
-
-        // Update current month indicator position
+        // Adjust to use only 11 spaces between 12 months (this avoids the extra space at the end)
+        const monthIndex = Math.floor((scrollY / totalHeight) * 11);  // 11 spaces between 12 months
+        const monthLabel = months[Math.max(0, Math.min(11, monthIndex))];  // Ensure it stays within the 12 months
+    
+        // Log the current month to the console
+        console.log("Current month:", monthLabel);
+    
+        // Update the current month indicator position
         const monthHeight = monthScale.clientHeight / 12; // Height for each month
-        currentMonthIndicator.style.top = `${monthIndex * monthHeight}px`;
-
+        const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2; // Center the month scale
+        currentMonthIndicator.style.top = `${monthScaleTop + (monthIndex * monthHeight) + (monthHeight / 2)}px`;
+    
         // Update the bubble chart for the current month
         updateChart(monthLabel);
-      });
+    });
 
       // Initialize the chart with the first month
       updateChart('Jan');
