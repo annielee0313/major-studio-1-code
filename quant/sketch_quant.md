@@ -43,6 +43,7 @@ The tool allows users to zoom into specific regions and switch between a geograp
 
 
 ### Quant Prototype Screenshot
+Link: https://annielee0313.github.io/major-studio-1-code/quant/
 <img width="1512" alt="quant_prototype_1" src="https://github.com/user-attachments/assets/f821ffe8-4651-45e7-b6a9-33c969b7b8c8">
 <img width="1512" alt="quant_prototype_2" src="https://github.com/user-attachments/assets/178f28e3-688a-4b3f-b5a6-e99fc246aa9d">
 
