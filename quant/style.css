@@ -28,7 +28,7 @@ body {
 
 #title {
     position: fixed;
-    top: 20px;
+    top: 10px;
     left: 60px;
     font-size: 102px;
     color:#BBFFB0;
@@ -47,7 +47,7 @@ body {
 
 #subtitle {
     position: fixed;
-    top: 130px;
+    top: 120px;
     left: 390px;
     font-size: 28px;
     color:#FFF;
@@ -56,7 +56,7 @@ body {
 
 .description {
     position: fixed;
-    top: 170px;
+    top: 160px;
     left: 60px;
     max-width: 530px; 
 }
