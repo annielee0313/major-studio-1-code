@@ -30,7 +30,7 @@ body {
     position: fixed;
     top: 10px;
     left: 60px;
-    font-size: 102px;
+    font-size: 88px;
     color:#BBFFB0;
     font-family: 'SnellBT', sans-serif;
 }
@@ -47,23 +47,23 @@ body {
 
 #subtitle {
     position: fixed;
-    top: 120px;
-    left: 390px;
-    font-size: 28px;
+    top: 105px;
+    left: 350px;
+    font-size: 24px;
     color:#FFF;
     font-family: 'PPGoshaSans', sans-serif;
 }
 
 .description {
     position: fixed;
-    top: 160px;
+    top: 140px;
     left: 60px;
     max-width: 530px; 
 }
 
 .description p {
     font-family: 'PPGoshaSans', sans-serif; 
-    font-size: 14px; 
+    font-size: 12px; 
     color: #FFF;
 }
 
