@@ -63,8 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Create a simulation for the bubble chart
         const simulation = d3.forceSimulation(filteredData)
-          .force("x", d3.forceX(centerX).strength(0.03))
-          .force("y", d3.forceY(centerY).strength(0.03))  // Center Y to the lower half
+          .force("x", d3.forceX(centerX).strength(0.05))
+          .force("y", d3.forceY(centerY).strength(0.05))  // Center Y to the lower half
           .force("collide", d3.forceCollide(radius + 5))  // Use the calculated radius for collision
           .stop();
 
@@ -83,8 +83,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("r", radius)
           .attr("cx", 0)  // Positioned at the center of the group
           .attr("cy", 0)  // Positioned at the center of the group
-          .attr("fill", "none")
-          .attr("stroke", "black")
+          .attr("fill", "#0B1A0B")
+        //   .attr("stroke", "black")
           .attr("stroke-width", 2)
           .attr("clip-path", "url(#circle-clip)");
 
@@ -129,30 +129,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
         simulation.alpha(1).restart(); // Restart the simulation with new nodes
 
-        // Tooltip functionality
-        mergedBubbles.on("mousemove", function (event, d) {
-            d3.select(this).select("circle").attr("fill", "orange");
+    // Tooltip and bubble hover functionality
+    mergedBubbles
+    .on("mouseover", function (event, d) {
+    // Bring the hovered bubble to the front
+    d3.select(this).raise();
 
-            // Remove existing tooltip if any
-            d3.selectAll(".tooltip").remove();
+    // Scale the bubble on hover
+    d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("transform", function (d) {
+        return `translate(${d.x}, ${d.y}) scale(3.5)`;  // Scale the bubble
+        });
+        
 
-            // Add the tooltip (append to body for proper positioning)
-            const tooltip = d3.select("body").append("div")
-              .attr("class", "tooltip")
-              .html(`<strong>${d.common_name}</strong><br>Life Form: ${d.life_form}<br>Bloom months: ${d.bloom_time}`)
-              .style("position", "absolute")
-              .style("background-color", "#fff")
-              .style("border", "1px solid #ccc")
-              .style("padding", "8px")
-              .style("pointer-events", "none")  // Ensure it doesn't interfere with mouse events
-              .style("left", (event.pageX + 10) + "px")  // Use event.pageX
-              .style("top", (event.pageY - 28) + "px");  // Use event.pageY
-          })
-          .on("mouseout", function () {
-            d3.select(this).select("circle").attr("fill", "none");
-            d3.selectAll(".tooltip").remove();
-          });
-      }
+    // Remove any existing tooltips
+    d3.selectAll(".tooltip").remove();
+
+    // Add the tooltip
+    d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .html(`${d.common_name}`)
+        // .html(`<strong>${d.common_name}</strong><br>Life Form: ${d.life_form}<br>Bloom months: ${d.bloom_time}`)
+        .style("position", "absolute")
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 20) + "px");
+    })
+
+    .on("mouseout", function () {
+    // Reset the scale of the bubble on mouse out
+    d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("transform", function (d) {
+        return `translate(${d.x}, ${d.y}) scale(1)`;  // Reset scale
+        });
+
+    // Remove the tooltip
+    d3.selectAll(".tooltip").remove();
+    });
+  }
+
+    
 
       // Handle scroll and update the bubble chart based on the current month
       window.addEventListener('scroll', () => {
