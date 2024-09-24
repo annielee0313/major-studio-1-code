@@ -42,4 +42,10 @@ The tool allows users to zoom into specific regions and switch between a geograp
 ![quant_mock](https://github.com/user-attachments/assets/2cdd8ed4-4b0b-4320-b94c-78e6746e9b6d)
 
 
+### Quant Prototype Screenshot
+<img width="1512" alt="quant_prototype_1" src="https://github.com/user-attachments/assets/f821ffe8-4651-45e7-b6a9-33c969b7b8c8">
+<img width="1512" alt="quant_prototype_2" src="https://github.com/user-attachments/assets/178f28e3-688a-4b3f-b5a6-e99fc246aa9d">
+
+
+
 
