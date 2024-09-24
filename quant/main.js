@@ -53,20 +53,34 @@ document.addEventListener("DOMContentLoaded", function () {
         // Filter the orchids that bloom in the selected month
         const filteredData = data.filter(d => d.bloom_time.includes(month));
 
+
+        // Calculate the width for the current month indicator
+        const totalOrchids = data.length; // Total number of orchids
+        const monthIndicatorWidth = (filteredData.length / totalOrchids) * 100 * 0.3; // Percentage of orchids blooming in the month
+
+        // Set the width of the current month indicator
+        currentMonthIndicator.style.width = `${monthIndicatorWidth}%`;
+
+        // Update the orchid count display
+        const orchidCountDisplay = document.getElementById('orchid-count');
+        orchidCountDisplay.textContent = `${filteredData.length}`;
+
         // Dynamically calculate bubble radius based on the number of data points
-        const maxBubbles = Math.min(filteredData.length, 1000);  // Set an upper limit if there are many data points
+        const maxBubbles = Math.min(filteredData.length, 2000);  // Set an upper limit if there are many data points
         const radius = Math.max(10, Math.min(50, Math.sqrt((width * height) / (maxBubbles * Math.PI))));  // Adjust radius
 
         // Update clipPath radius
         svg.select("#circle-clip circle")
         .attr("r", radius);
 
+        
+
         // Create a simulation for the bubble chart
         const simulation = d3.forceSimulation(filteredData)
-          .force("x", d3.forceX(centerX).strength(0.05))
-          .force("y", d3.forceY(centerY).strength(0.05))  // Center Y to the lower half
-          .force("collide", d3.forceCollide(radius + 5))  // Use the calculated radius for collision
-          .stop();
+            .force("x", d3.forceX(centerX).strength(0.01)) 
+            .force("y", d3.forceY(centerY).strength(0.01)) 
+            .force("collide", d3.forceCollide(radius + 5))
+            .stop();
 
         // Remove old bubbles
         const bubbles = svg.selectAll("g")
@@ -83,10 +97,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("r", radius)
           .attr("cx", 0)  // Positioned at the center of the group
           .attr("cy", 0)  // Positioned at the center of the group
-          .attr("fill", "#0B1A0B")
-        //   .attr("stroke", "black")
-          .attr("stroke-width", 2)
-          .attr("clip-path", "url(#circle-clip)");
+          .attr("fill", "#0B1A0B");
+        
 
         enterBubbles.append("image")
           .attr("xlink:href", d => d.image_url)
@@ -95,6 +107,15 @@ document.addEventListener("DOMContentLoaded", function () {
           .attr("width", radius * 2)
           .attr("height", radius * 2)
           .attr("clip-path", "url(#circle-clip)");
+
+        enterBubbles.append("circle")
+          .attr("r", radius)
+          .attr("cx", 0)  // Positioned at the center of the group
+          .attr("cy", 0)  // Positioned at the center of the group
+          .attr("fill", "none")
+          .attr("stroke-width", 3)
+          .attr("clip-path", "url(#circle-clip)");
+
 
         // Merge old and new elements
         const mergedBubbles = enterBubbles.merge(bubbles);
@@ -140,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .transition()
         .duration(200)
         .attr("transform", function (d) {
-        return `translate(${d.x}, ${d.y}) scale(3.5)`;  // Scale the bubble
+        return `translate(${d.x}, ${d.y}) scale(3.8)`;  // Scale the bubble
         });
         
 
@@ -174,32 +195,111 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
       // Handle scroll and update the bubble chart based on the current month
-      window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', () => {
         const scrollY = window.scrollY;
         const viewportHeight = window.innerHeight;
         const totalHeight = document.documentElement.scrollHeight - viewportHeight;
-    
+
         // Calculate the current month based on scroll position
-        // Adjust to use only 11 spaces between 12 months (this avoids the extra space at the end)
-        const monthIndex = Math.floor((scrollY / totalHeight) * 11);  // 11 spaces between 12 months
-        const monthLabel = months[Math.max(0, Math.min(11, monthIndex))];  // Ensure it stays within the 12 months
-    
+        const monthIndex = Math.floor((scrollY / totalHeight) * 12); // Use 12 for 12 months
+
+        // Clamp monthIndex to valid range (0 to 11)
+        const clampedMonthIndex = Math.max(0, Math.min(11, monthIndex));  // Ensure it stays within the 12 months
+        const monthLabel = months[clampedMonthIndex];  // Get the corresponding month label
+
         // Log the current month to the console
         console.log("Current month:", monthLabel);
-    
+
         // Update the current month indicator position
         const monthHeight = monthScale.clientHeight / 12; // Height for each month
         const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2; // Center the month scale
-        currentMonthIndicator.style.top = `${monthScaleTop + (monthIndex * monthHeight) + (monthHeight / 2)}px`;
-    
+        currentMonthIndicator.style.top = `${monthScaleTop + (clampedMonthIndex * monthHeight) + (monthHeight / 2)}px`;
+
         // Update the bubble chart for the current month
         updateChart(monthLabel);
     });
 
+
       // Initialize the chart with the first month
       updateChart('Jan');
+
+      // Set the month indicator position to January
+        currentMonthIndicator.style.top = `${monthScale.clientHeight / 12 * 0}px`; // Position it at the top of the scale
+
+        // Trigger the scroll event to ensure the correct month is displayed
+        window.dispatchEvent(new Event('scroll'));
+    });
+});
+
+//Life form buttons
+document.addEventListener("DOMContentLoaded", function () {
+    const selectedLifeForms = []; // Array to track selected life forms
+
+    // Get all filter buttons
+    const epiphyticButton = document.getElementById('epiphytic');
+    const terrestrialButton = document.getElementById('terrestrial');
+    const lithophyticButton = document.getElementById('lithophytic');
+
+    // Toggle the selected class and update selected life forms
+    function toggleLifeForm(button, lifeForm) {
+        button.classList.toggle('active');
+        const index = selectedLifeForms.indexOf(lifeForm);
+
+        if (index > -1) {
+            // If life form is already selected, remove it
+            selectedLifeForms.splice(index, 1);
+        } else {
+            selectedLifeForms.push(lifeForm);
+        }
+
+        // After updating the selected life forms, update the bubbles
+        updateBubblesWithLifeForm();
+    }
+
+    epiphyticButton.addEventListener('click', function () {
+        toggleLifeForm(this, 'Epiphytic');
     });
 
-    // Initialize the month indicator
-    window.dispatchEvent(new Event('scroll'));
+    terrestrialButton.addEventListener('click', function () {
+        toggleLifeForm(this, 'Terrestrial');
+    });
+
+    lithophyticButton.addEventListener('click', function () {
+        toggleLifeForm(this, 'Lithophytic');
+    });
+
+    function updateBubblesWithLifeForm() {
+        const bubbles = d3.selectAll('g');
+
+        // Loop through each bubble and check its life form
+        bubbles.select('circle')
+            .attr('stroke', d => {
+                if (selectedLifeForms.includes(d.life_form)) {
+                    return '#BBFFB0';  // Highlight with green border
+                } else {
+                    return 'none'; 
+                }
+            });
+    }
 });
+
+ // Life Form Pop Up
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("lifeFormModal");
+    const modalContent = document.querySelector(".modal-content");
+
+    const lifeFormLabel = document.getElementById("life-form-label");
+
+    lifeFormLabel.addEventListener("click", function () {
+        modal.style.display = "block";
+    });
+
+    // click anywhere to close
+    modal.addEventListener("click", function (event) {
+        if (event.target !== modalContent) {
+            modal.style.display = "none";
+        }
+    });
+});
+
+

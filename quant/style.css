@@ -1,11 +1,22 @@
 @font-face {
     font-family: 'PPGoshaSans';
     src: url('./fonts/PPGoshaSans-Regular.otf') format('opentype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'PPGoshaSans';
+    src: url('./fonts/PPGoshaSans-Bold.otf') format('opentype');
+    font-weight: bold;
 }
 
 @font-face {
     font-family: 'PPNeueMontreal';
     src: url('./fonts/PPNeueMontreal-Regular.otf') format('opentype');
+}
+@font-face {
+    font-family: 'SnellBT';
+    src: url('./fonts/SnellBT-Regular.otf') format('opentype');
 }
 
 body {
@@ -17,20 +28,34 @@ body {
 
 #title {
     position: fixed;
-    top: 70px;
-    left: 50px;
+    top: 60px;
+    left: 60px;
     font-size: 98px;
     color:#BBFFB0;
-    font-family: 'PPGoshaSans', sans-serif;
+    font-family: 'SnellBT', sans-serif;
 }
+
 
 #subtitle {
     position: fixed;
-    top: 190px;
-    left: 52px;
-    font-size: 54px;
-    color:#FFFFFF;
+    top: 160px;
+    left: 380px;
+    font-size: 24px;
+    color:#FFF;
     font-family: 'PPGoshaSans', sans-serif;
+}
+
+.description {
+    position: fixed;
+    top: 200px;
+    left: 60px;
+    max-width: 530px; 
+}
+
+.description p {
+    font-family: 'PPGoshaSans', sans-serif; 
+    font-size: 14px; 
+    color: #FFF;
 }
 
 #month-scale {
@@ -57,7 +82,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* border-bottom: 1px solid #ccc; /* for visual separation */
     color: #FFFFFF; /* Change text color here */
 
 }
@@ -69,19 +93,28 @@ body {
 #current-month-indicator {
     position: fixed;
     right: 10px; /* Align with the month scale */
-    width: 100px;
     height: 5px;
     background: #BBFFB0;
-    /* z-index: 1001; */
     top: 50%;
     transform: translateY(-50%);
+}
+
+#orchid-count {
+    position: absolute;
+    top: -10px;          
+    left: -20px;            /* Center horizontally */
+    transform: translateX(-50%); /* Adjust to center based on width */
+    color: white;         
+    font-size: 14px;   
+    font-family: 'PPGoshaSans', sans-serif;
+    text-align: left;
 }
 
 #bubble-chart-container {
     position: fixed;
     bottom: 0;
     width: 90%;
-    height: 60vh;  /* Half of the view height to mimic the northern hemisphere */
+    height: 70vh;  /* Half of the view height to mimic the northern hemisphere */
     display: flex;
     justify-content: center;
 }
@@ -89,7 +122,7 @@ body {
 #bubble-chart {
     width: 90%; /* Adjust to 90% of the container's width */
     height: 100%; /* Adjust to fill 100% of the container's height */
-    clip-path: ellipse(50% 100% at 50% 100%); /* Clip to a semicircle */
+    clip-path: ellipse(50% 100% at 50% 100%); /* Clip to a semicircle  */
     background-color: #182F18; /* Optional: background for the semicircle */
 }
 
@@ -106,24 +139,84 @@ body {
 
 #filter-buttons { 
     position: fixed;
-    top: 270px;
-    left: 50px;
+    top: 100px;
+    right: 20px;
+    display: flex;
+    align-items: center;
 }
 
 .filter-button {
+    appearance: none;
     margin: 5px;
     padding: 8px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
     border-radius: 20px;
-    border: none;
-    background-color: #ddd;
+    background-color: transparent;
     cursor: pointer;
     font-family: 'PPGoshaSans', sans-serif;
-    font-size: 18px;
+    font-size: 14px;
+    color: #FFF;
+    appearance: none;
+    outline: none;
+    border: 2px solid #FFF; 
+}
+
+.filter-button:hover {
+    border: 2px solid #BBFFB0; 
+    color: #BBFFB0;
 }
 
 .filter-button.active {
-    background-color: #888;
-    color: #fff;
+    background-color: #BBFFB0; /* Change background when active */
+    color: #0B1A0B;           /* Change text color when active */
 }
+
+
+#life-form-label {
+    margin-right: 15px;
+    font-family: 'PPGoshaSans', sans-serif;
+    font-size: 14px;
+    color: #FFF;
+    cursor: pointer;
+  }
+  
+  #life-form-label:hover {
+    text-decoration: underline; /* Highlight on hover */
+  }
+  
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.3); /* Black with transparency */
+  }
+  
+  .modal-content {
+    background-color: #FFF;
+    border-radius: 5px;
+    margin: 15% auto;
+    padding: 20px;
+    width: 40%; 
+  }
+
+.modal-content h2 {
+    text-align: center;
+    font-size: 21px; 
+    font-weight: bold; 
+    color: #0B1A0B; 
+    margin-bottom: 15px;
+    font-family: 'PPGoshaSans', sans-serif;
+  }
+  
+  .modal-content p {
+    font-size: 16px;
+    line-height: 1.5; 
+    color: #0B1A0B; 
+    font-family: 'PPGoshaSans', sans-serif;
+  }

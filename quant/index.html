@@ -8,15 +8,33 @@
   <title>Blooming Orchids</title>
 </head>
 <body>
-    <div id="title">BLOOMING ORCHIDS</div>
-    <div id="subtitle">OF THE SMITHSONIAN GARDENS</div>
+    <script src="main.js"></script>
+    <div id="title">Blooming Orchids</div>
+    <div id="subtitle">in the Northern Hemisphere</div>
 
-    <!-- Life form buttons -->
+    <div class="description">
+        <p>The Smithsonian Gardens holds the third largest species-diverse collection in the world with over 6,000 specimen from all over the world. Orchids are renowned for their biodiversity, playing an important role in global ecosystems by supporting a wide range of pollinators. Collections like  the Smithsonian Gardens Orchid Collection (SGOC) is a vital conservation resource protecting species from threats like habitat change and over collecting. This project visualizes the bloom time of the 760 unique living orchids from the Smithsonian Open Access database. </p>
+        <p><br/>Scroll to explore ↓ </p>
+    </div>
+
+    <!-- Life form buttons-->
     <div id="filter-buttons">
+        <span id="life-form-label" class="clickable">LIFE FORM:</span>
         <button id="epiphytic" class="filter-button">EPIPHYTIC</button>
-        <button id="terrestrial" class="filter-button">TERRESTRIALl</button>
+        <button id="terrestrial" class="filter-button">TERRESTRIAL</button>
         <button id="lithophytic" class="filter-button">LITHOPHYTIC</button>
     </div>
+
+    <!-- Life Form Pop Up -->
+    <div id="lifeFormModal" class="modal">
+        <div class="modal-content">
+        <h2>LIFE FORM</h2>
+        <p><strong>Epiphytic:</strong> Orchids that grow on other plants, typically trees, and derive moisture and nutrients from the air and rain. They often have specialized adaptations, such as thick, fleshy roots, to help them thrive in their arboreal habitats.</p>
+        <p><strong>Terrestrial:</strong> Orchids that grow in the ground, typically in well-drained soil, and have root systems that allow them to access nutrients and water from the earth. They often bloom in spring and summer, adapting to various terrestrial environments, from forests to grasslands.</p>
+        <p><strong>Lithophytic:</strong> Orchids that grow on rocks or rocky surfaces, utilizing crevices for anchorage and absorbing moisture and nutrients from rain and debris that collect in these natural pockets. They are well-adapted to withstand harsh conditions, often found in mountainous or arid regions.</p>
+        </div>
+    </div>
+    
 
     <!-- Container for the month scale -->
     <div id="month-scale"></div>
@@ -27,13 +45,14 @@
     </div>
     
     <!-- Indicator for the current month -->
-    <div id="current-month-indicator"></div>
+    <div id="current-month-indicator">
+        <span id="orchid-count"></span>
+    </div>
 
     <!-- Bubble chart -->
     <div id="bubble-chart-container">
         <svg id="bubble-chart"></svg>
     </div>
-  
-    <script src="main.js"></script>
+
 </body>
 </html>
