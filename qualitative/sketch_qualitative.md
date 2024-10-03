@@ -9,6 +9,7 @@
 Bloom colors will be extracted from the "bloom_characteristics" field, with exact shades identified using Vibrant.js.
 ![qual_sketch1](https://github.com/user-attachments/assets/db33651f-bb55-4142-9ac0-e77199c0bf6a)
 
+
 ## Sketch 2 **Pollination Syndrome and Fragrance**
 
 - Orchids are often used in perfumes because of their diverse scents, which can range from sweet and lemony to musty.
@@ -25,5 +26,16 @@ Bloom colors will be extracted from the "bloom_characteristics" field, with exac
 - color coded scent?
 ![qual_sketch2](https://github.com/user-attachments/assets/5b8b4d1f-9025-44df-804c-f0cf26b553df)
 
+
+## Sketch 3 Bloom Characteristics
+
+This is an interactive bubble chart exploring if there is a correlation between bloom characteristics and different genus, subgroups, etc. he x-axis plots the flower size, the y-axis plots the inflorescence length, and the bubble size is according to the number of flowers. We can zoom in by filtering the length and size of flower, hover over each bubble for tooltip, and click on them to expand further description. Once expanded, the side bar provides additional information with tags like genus and sub-groups - select the tabs to see orchids of the same tag light up in the bubble chart. 
+
+**Research Question:** How do different bloom characteristics interact across various orchid species? 
+
+**Dataset:** less than 2135 rows  ****`orchids AND bloom characteristics AND Living botanical specimens AND inflorescence AND online_media_type:"Images"`
+
+**Data Cleaning:** filter out those without all three bloom characteristics. identify words like “many flowers” and the different numbers for length, number of flowers, and flower width.
+![quant-sketch-2](https://github.com/user-attachments/assets/9a09dae8-4f7c-4d35-948e-c0b37b11a284)
 
 
