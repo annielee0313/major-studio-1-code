@@ -1,4 +1,4 @@
-### Sketch 1: Colors and Pairings
+## Sketch 1: Colors and Pairings
 
 **Visualization:** A mix of a color wheel, radial bar chart, and chord diagram to explore orchid bloom colors and their pairings.
 
