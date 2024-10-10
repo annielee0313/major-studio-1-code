@@ -1,4 +1,4 @@
-// Define your API key and base URL
+// API key and base URL
 const apiKey = "RLaXwT4AAXNEi9zDr6nd9cytOb4iWfhAl40ugta1";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
@@ -91,13 +91,13 @@ function fetchAllData(searchTerm, numRows = 500) {
             // Print the extracted data to the console
             console.log("Extracted Data:", JSON.stringify(extractedData, null, 2));
 
-            // Trigger the download of JSON data
+            // download JSON data
             downloadJSON(extractedData, 'extractedQualData.json');
         })
         .catch(error => {
-            console.error("Error fetching data:", error); // Handle and log any errors
+            console.error("Error fetching data:", error);
         });
 }
 
-// Call the fetch function with the desired search term
+// Call the fetch function
 fetchAllData('Orchids AND fragrance AND Pollination Syndrome AND online_media_type:"Images" AND object_type:"Living botanical specimens"');

@@ -1,6 +1,6 @@
 //fetch all data & get the data points i need
 
-// Define your API key and base URL
+// API key and base URL
 const apiKey = "RLaXwT4AAXNEi9zDr6nd9cytOb4iWfhAl40ugta1";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
@@ -33,5 +33,5 @@ function fetchAllData(searchTerm, numRows = 500) {
         });
 }
 
-// Call the fetch function with the desired search term
+// Call the fetch function
 fetchAllData('Orchids AND fragrance AND Pollination Syndrome AND online_media_type:"Images" AND object_type:"Living botanical specimens"');
