@@ -1,7 +1,7 @@
 const fragranceTypes = {
-    "pleasant": ["pleasant", "fragrant", "faint", "sometimes"],
-    "sweet": ["honey", "sweet", "vanilla", "candy", "chocolate", "baby powder"],
-    "earthy": ["rye bread", "almond", "eucalyptus", "anise", "wintergreen", "musty", "turpentine", "vegetable", "cheap cigars", "musky", "mushroom"],
+    // "pleasant": ["pleasant", "fragrant", "faint", "sometimes"],
+    "sweet": ["honey", "sweet", "vanilla", "candy", "chocolate", "baby powder", "musky"],
+    "earthy": ["rye bread", "almond", "eucalyptus", "anise", "wintergreen", "musty", "turpentine", "vegetable", "cheap cigars", "mushroom"],
     "floral": ["nasturtium", "narcissus", "gardenia", "rose", "floral", "lilies", "jasmine", "lily of the valley", "hyacinth", "lilac", "lilic"],
     "fruity": ["bananas", "peach", "apple", "citrus", "fruity", "oranges", "citronella", "coconut", "lemon"],
     "spicy": ["nutmeg", "anise", "mint", "spicy", "cinnamon", "clove", "licorice", "pepper", "peppermint", "minty"],
@@ -25,7 +25,7 @@ function getFragranceType(note) {
 }
 
 // Set dimensions and margins of the graph
-var margin = { top: 200, right: 100, bottom: 200, left: 100 }; 
+var margin = { top: 200, right: 100, bottom: 50, left: 0 }; 
 var width = window.innerWidth - margin.left - margin.right; // Full width minus margins
 var height = window.innerHeight - margin.top - margin.bottom; // Full height minus margins
 var innerRadius = 120;
