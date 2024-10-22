@@ -1,5 +1,5 @@
-// Load the cleaned data from the existing data cleaning process
-d3.json('cleanedData.json').then(data => {
+// Load the extractedQual data from the existing data cleaning process
+d3.json('extractedQualData.json').then(data => {
     // Generalize the data (as shown previously)
     const pollinatorMap = {
         "bee": /bee/i,
@@ -22,7 +22,7 @@ d3.json('cleanedData.json').then(data => {
     };
 
     // Generalize the data
-    let cleanedData = data.map(orchid => {
+    let extractedQualData = data.map(orchid => {
         let generalizedPollinator = Object.keys(pollinatorMap).find(key => pollinatorMap[key].test(orchid.pollination_syndrome)) || 'other';
         let generalizedFragrance = Object.keys(fragranceMap).find(key => fragranceMap[key].test(orchid.fragrance)) || 'other';
 
@@ -39,7 +39,7 @@ d3.json('cleanedData.json').then(data => {
     let matrix = Array(pollinators.length).fill(0).map(() => Array(fragrances.length).fill(0));
 
     // Populate the matrix based on generalized data
-    cleanedData.forEach(orchid => {
+    extractedQualData.forEach(orchid => {
         let pollinatorIndex = pollinators.indexOf(orchid.generalizedPollinator);
         let fragranceIndex = fragrances.indexOf(orchid.generalizedFragrance);
         if (pollinatorIndex >= 0 && fragranceIndex >= 0) {

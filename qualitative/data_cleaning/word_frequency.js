@@ -1,5 +1,5 @@
 // Load the JSON data
-d3.json('cleanedData.json').then(data => { 
+d3.json('extractedQualData.json').then(data => { 
     // Extract pollination syndromes and fragrances separately
     let pollinationSyndromes = data.map(d => d.pollination_syndrome);
     let fragrances = data.map(d => d.fragrance);

@@ -1,0 +1,16 @@
+@font-face {
+    font-family: 'PPFranktionMono';
+    src: url('fonts/PPFraktionMono-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background-color: white; /* Base color */
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
