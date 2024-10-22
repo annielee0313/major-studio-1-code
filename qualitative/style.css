@@ -6,11 +6,47 @@
 }
 
 body {
-    background-color: white; /* Base color */
+    background-color: #050505; /* Base color */
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 100vh;
     margin: 0;
+}
+
+#app4 {
+    position: fixed;    /* Fix the chart on the screen */
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 5px;
+    font: 0.8rem 'PPFranktionMono', sans-serif;
+    color: white;
+    background: black;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.photo-strip {
+    position: absolute; /* Position absolute for custom placement */
+    top: 20px;
+    width: 90px;       /* Set width of photo strips */
+    /* background-color: #fff; White background for the strip */
+}
+
+#photo-strip-1 {
+    left: 5%;        /* 50px away from the left */
+}
+
+#photo-strip-2 {
+    right: 5%;       /* 50px away from the right */
+}
+
+.photo-strip img {
+    width: 90px;              /* Set image width */
+    margin-bottom: 5px;      /* Space between images */
 }
