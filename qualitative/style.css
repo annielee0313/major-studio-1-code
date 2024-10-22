@@ -5,6 +5,11 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'SnellBT';
+    src: url('./fonts/SnellBT-Regular.otf') format('opentype');
+}
+
 body {
     background-color: #050505; /* Base color */
     background-attachment: fixed;
@@ -29,13 +34,29 @@ body {
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
+    z-index: 10;
 }
 
+.tooltip2 {
+    position: absolute;
+    text-align: center;
+    padding: 5px;
+    font: 0.8rem 'PPFranktionMono', sans-serif;
+    color: white;
+    background: blue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 20;
+}
+
+
 .photo-strip {
-    position: absolute; /* Position absolute for custom placement */
+    position: absolute; 
     top: 20px;
     width: 90px;       /* Set width of photo strips */
-    /* background-color: #fff; White background for the strip */
+    background-color: #fff; 
+    z-index: 15;
 }
 
 #photo-strip-1 {

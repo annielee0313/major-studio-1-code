@@ -25,7 +25,7 @@ function getFragranceType(note) {
 }
 
 // Set dimensions and margins of the graph
-var margin = { top: 200, right: 100, bottom: 50, left: 0 }; 
+var margin = { top: 200, right: 100, bottom: 200, left: 100 }; 
 var width = window.innerWidth - margin.left - margin.right; // Full width minus margins
 var height = window.innerHeight - margin.top - margin.bottom; // Full height minus margins
 var innerRadius = 120;
@@ -68,6 +68,11 @@ d3.json(datasetURL).then(data => {
   const firstHalf = data.slice(0, midIndex);
   const secondHalf = data.slice(midIndex);
 
+  // tooltip for photo strip
+  const imageTooltip2 = d3.select("body").append("div")
+    .attr("class", "tooltip2")
+    .style("opacity", 0); // Initially hidden
+
   // Populate the first photo strip
   const photoStrip1 = d3.select("#photo-strip-1");
     photoStrip1.selectAll("img")
@@ -76,7 +81,26 @@ d3.json(datasetURL).then(data => {
         .append("img")
         .attr("src", d => d.image_url)
         .attr("alt", d => d.common_name)
-        .attr("data-fragrance-notes", d => d.fragrance_notes); 
+        .attr("data-fragrance-notes", d => d.fragrance_notes)
+
+        .on("mouseover", function(event, d) {
+            imageTooltip2.transition()
+                .duration(200)
+                .style("opacity", .9);
+    
+            imageTooltip2.html(`${d.common_name}<br>Fragrance: ${d.fragrance_notes}`)
+                .style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mousemove", function(event) {
+            imageTooltip2.style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", function() {
+            imageTooltip2.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 
     const photoStrip2 = d3.select("#photo-strip-2");
     photoStrip2.selectAll("img")
@@ -85,7 +109,25 @@ d3.json(datasetURL).then(data => {
         .append("img")
         .attr("src", d => d.image_url)
         .attr("alt", d => d.common_name)
-        .attr("data-fragrance-notes", d => d.fragrance_notes);
+        .attr("data-fragrance-notes", d => d.fragrance_notes)
+        .on("mouseover", function(event, d) {
+            imageTooltip2.transition()
+                .duration(200)
+                .style("opacity", .9);
+    
+            imageTooltip2.html(`${d.common_name}<br>Fragrance: ${d.fragrance_notes}`)
+                .style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mousemove", function(event) {
+            imageTooltip2.style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", function() {
+            imageTooltip2.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 
 
   // Create a map to hold counts of unique fragrance notes across all entries, grouped by type
@@ -245,7 +287,6 @@ function brightenColor(color, factor) {
             d3.selectAll("path")
                 .attr("opacity", 1) // Undim all bars
                 .attr("fill", d => colorMapping[d.fragranceType]); // Restore original color
-            resetImageHighlighting(); // Reset image highlights
             resetPhotoStrips(); // Reset to original photo strip display
         }
     });
