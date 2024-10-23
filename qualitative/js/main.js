@@ -2,6 +2,10 @@ let globalData = [];  // hold our dataset
 
 let maxFragranceCounts = new Map(); // max count for each bar
 
+let selectedPollinatorType = "All";  // Track current pollinator selection
+
+let selectedFragranceNotes = []; // Array to store selected fragrance notes
+
 const POLLINATOR_TYPES = [
     "All",
     "Euglossine Bees",
@@ -22,11 +26,11 @@ const fragranceTypes = {
     "unpleasant": ["unpleasant", "foul", "rotten", "rotten waste", "rotten meat", "rancid cheese", "dental plaque", "fungus", "fetid", "fishy", "bitter"]
 };
 
-// Array to store selected fragrance notes
-let selectedFragranceNotes = [];
+
 
 // Create an array of unique fragrance types from the fragranceTypes object
 const uniqueFragranceTypes = Object.keys(fragranceTypes);
+
 
 // Function to get the fragrance type from a note
 function getFragranceType(note) {
@@ -93,8 +97,6 @@ d3.json(datasetURL).then(data => {
     }
   });
   
-  console.log(data); 
-  
   // Split the data into two halves
   const midIndex = Math.ceil(data.length / 2);
   const firstHalf = data.slice(0, midIndex);
@@ -113,14 +115,15 @@ d3.json(datasetURL).then(data => {
         .append("img")
         .attr("src", d => d.image_url)
         .attr("alt", d => d.common_name)
-        .attr("data-fragrance-notes", d => d.fragrance_notes)
-        .attr("data-pollinators", d => d.pollinator_types)
+        .attr("data-pollinator-type", d => d.pollinator_types) 
+        .attr("data-fragrance-notes", d => d.fragrance_notes)  
+        
 
         .on("mouseover", function(event, d) {
             imageTooltip2.transition()
                 .duration(200)
                 .style("opacity", .9);
-    
+
             imageTooltip2.html(`${d.common_name}<br>Fragrance: ${d.fragrance_notes}<br>Pollinator: ${d.pollinator_types}`)
                 .style("left", (event.pageX + 5) + "px")
                 .style("top", (event.pageY - 28) + "px");
@@ -135,33 +138,43 @@ d3.json(datasetURL).then(data => {
                 .style("opacity", 0);
         });
 
+    // populate photo strip 2
     const photoStrip2 = d3.select("#photo-strip-2");
-    photoStrip2.selectAll("img")
-        .data(secondHalf)
-        .enter()
-        .append("img")
-        .attr("src", d => d.image_url)
-        .attr("alt", d => d.common_name)
-        .attr("data-fragrance-notes", d => d.fragrance_notes)
-        .attr("data-pollinators", d => d.pollinator_types)
-        .on("mouseover", function(event, d) {
-            imageTooltip2.transition()
-                .duration(200)
-                .style("opacity", .9);
-    
-            imageTooltip2.html(`${d.common_name}<br>Fragrance: ${d.fragrance_notes}<br>Pollinator: ${d.pollinator_types}`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mousemove", function(event) {
-            imageTooltip2.style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", function() {
-            imageTooltip2.transition()
-                .duration(500)
-                .style("opacity", 0);
+photoStrip2.selectAll("img")
+    .data(secondHalf)
+    .enter()
+    .append("img")
+    .attr("src", d => d.image_url)
+    .attr("alt", d => d.common_name)
+    .attr("data-pollinator-type", d => d.pollinator_types) 
+    .attr("data-fragrance-notes", d => d.fragrance_notes)  
+
+    .on("mouseover", function(event, d) {
+        imageTooltip2.transition()
+            .duration(200)
+            .style("opacity", .9);
+
+        imageTooltip2.html(`${d.common_name}<br>Fragrance: ${d.fragrance_notes}<br>Pollinator: ${d.pollinator_types}`)
+            .style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mousemove", function(event) {
+        imageTooltip2.style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function() {
+        imageTooltip2.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+        
+    console.log("Checking first few images:");
+    d3.selectAll("img").nodes().slice(0, 5).forEach(img => {
+        console.log({
+            fragranceNotes: img.getAttribute('data-fragrance-notes'),
+            pollinatorType: img.getAttribute('data-pollinator-type')
         });
+    });
 
 
   // Create a map to hold counts of unique fragrance notes across all entries, grouped by type
@@ -293,62 +306,92 @@ function brightenColor(color, factor) {
     })
     .on("click", function(event, d) {
         const selectedNote = d.note.toLowerCase();
-    
-        // Check if the note is already selected
+        
+        // Toggle the selected note
         const index = selectedFragranceNotes.indexOf(selectedNote);
         if (index > -1) {
-            // Deselect the note if already selected
             selectedFragranceNotes.splice(index, 1);
         } else {
-            // Select the note if not already selected
             selectedFragranceNotes.push(selectedNote);
         }
-    
-        // Update the photo strips based on the selected fragrance notes
-        updatePhotoStrips(selectedFragranceNotes);
-    
+        
+        // Update bar highlighting
         if (selectedFragranceNotes.length > 0) {
-            // Highlight the selected bars and reset their colors to the original
-            d3.selectAll("path").attr("opacity", 0.5); // Dim all bars
+            d3.selectAll("path").attr("opacity", 0.5);
             selectedFragranceNotes.forEach(note => {
                 d3.selectAll("path")
                     .filter(d => d.note.toLowerCase() === note)
-                    .attr("opacity", 1) // Highlight selected bars
-                    .attr("fill", d => colorMapping[d.fragranceType]); // Restore original color of selected bars
+                    .attr("opacity", 1)
+                    .attr("fill", d => colorMapping[d.fragranceType]);
             });
         } else {
-            // No bars selected, so reset all bars' opacity and color back to the original
             d3.selectAll("path")
-                .attr("opacity", 1) // Undim all bars
-                .attr("fill", d => colorMapping[d.fragranceType]); // Restore original color
-            resetPhotoStrips(); // Reset to original photo strip display
+                .attr("opacity", 1)
+                .attr("fill", d => colorMapping[d.fragranceType]);
         }
+        
+        // Update photo strips with both filters
+        updatePhotoStrips(selectedFragranceNotes);
     });
 });
 
-// Function to highlight images that match the fragrance note
-function highlightMatchingImages(note, color) {
-    d3.selectAll("img").each(function() {
-        const img = d3.select(this);
-        const fragranceNotes = img.attr("data-fragrance-notes");
-    });
-}
-// Function to update the photo strips based on selected fragrance notes
 function updatePhotoStrips(selectedNotes) {
-    if (selectedNotes.length > 0) {
-        // Get all images and filter based on the selected notes
-        d3.select("#photo-strip-1").selectAll("img").style("display", function() {
-            const fragranceNotes = d3.select(this).attr("data-fragrance-notes");
-            return selectedNotes.some(note => fragranceNotes && fragranceNotes.includes(note)) ? "block" : "none";
+    console.log("Filtering with:", {
+        selectedPollinatorType,
+        selectedNotes
+    });
+
+    const filterImages = function() {
+        // Get the pollinator type and fragrance notes from the image
+        const pollinatorType = this.getAttribute('data-pollinator-type');
+        const fragranceNotes = this.getAttribute('data-fragrance-notes');
+
+        console.log("Checking image:", {
+            pollinatorType,
+            fragranceNotes,
+            selectedPollinatorType,
+            matchesPollinator: selectedPollinatorType === "All" || 
+                pollinatorType === selectedPollinatorType,
+            matchesFragrance: selectedNotes.length === 0 || 
+                selectedNotes.some(note => fragranceNotes.includes(note))
         });
 
-        d3.select("#photo-strip-2").selectAll("img").style("display", function() {
-            const fragranceNotes = d3.select(this).attr("data-fragrance-notes");
-            return selectedNotes.some(note => fragranceNotes && fragranceNotes.includes(note)) ? "block" : "none";
-        });
-    } else {
-        resetPhotoStrips(); // Show all images if no notes are selected
-    }
+        // Check if pollinator matches
+        const matchesPollinator = selectedPollinatorType === "All" || 
+            pollinatorType === selectedPollinatorType;
+
+        // If no fragrance notes selected, just use pollinator match
+        if (selectedNotes.length === 0) {
+            return matchesPollinator;
+        }
+
+        // Check if any selected fragrance matches
+        const matchesFragrance = selectedNotes.some(note => 
+            fragranceNotes.includes(note.toLowerCase())
+        );
+
+        const shouldShow = matchesPollinator && matchesFragrance;
+        if (shouldShow) {
+            console.log("Found matching image:", {
+                pollinatorType,
+                fragranceNotes
+            });
+        }
+
+        return shouldShow;
+    };
+
+    let matchCount = 0;
+    ["#photo-strip-1", "#photo-strip-2"].forEach(stripId => {
+        d3.select(stripId).selectAll("img")
+            .style("display", function() {
+                const shouldShow = filterImages.call(this);
+                if (shouldShow) matchCount++;
+                return shouldShow ? "block" : "none";
+            });
+    });
+
+    console.log(`Total matches found: ${matchCount}`);
 }
 
 // Function to reset the photo strips to show all orchids
@@ -357,18 +400,8 @@ function resetPhotoStrips() {
     d3.select("#photo-strip-2").selectAll("img").style("display", "block");
 }
 
-// limit scroll
-const photoStripContainer = document.getElementById('photo-strip-container');
 
-photoStripContainer.addEventListener('scroll', function() {
-    const maxScrollTop = this.scrollHeight - this.clientHeight; // Max scroll position
-    if (this.scrollTop >= maxScrollTop) {
-        // The user has reached the end of the scroll
-        this.scrollTop = maxScrollTop; // Prevent further scrolling
-    }
-});
-
-// Add this function after your existing function declarations
+// Create pollinator buttons
 function createPollinatorButtons() {
     const buttonContainer = d3.select("#pollinator-buttons");
     
@@ -383,7 +416,18 @@ function createPollinatorButtons() {
             d3.selectAll(".pollinator-btn").classed("active", false);
             d3.select(this).classed("active", true);
             
-            // Update visualization
+            // Update selected pollinator type
+            selectedPollinatorType = d;
+            
+            // Reset fragrance selection
+            selectedFragranceNotes = [];
+            
+            // Reset bar highlighting
+            d3.selectAll("path")
+                .attr("opacity", 1)
+                .attr("fill", d => colorMapping[d.fragranceType]);
+            
+            // Update visualization with new pollinator
             updateVisualizationForPollinator(d);
         });
 }
@@ -418,86 +462,80 @@ function updateVisualizationForPollinator(pollinatorType) {
         ? globalData 
         : globalData.filter(d => d.pollinator_types === pollinatorType);
 
-    console.log(`Selected Pollinator: ${pollinatorType}`);
-    console.log(`Total orchids for this pollinator: ${filteredData.length}`);
-    console.log('Sample of matching orchids:', filteredData.slice(0, 5).map(d => ({
-        name: d.common_name,
-        pollinator: d.pollinator_types,
-        fragrance: d.fragrance_notes,
-        hasSpecificFragrance: d.fragrance_notes && d.fragrance_notes.toLowerCase() !== "fragrant"
-    })));
-
-    // Create a map to hold counts of fragrance notes for filtered data
-    const fragranceNoteCounts = new Map();
-
-    // Count orchids with specific fragrances (excluding those with only "fragrant")
-    let orchidsWithSpecificFragrances = 0;
-
-    // Process each filtered data entry
-    filteredData.forEach(d => {
-        if (d.fragrance_notes && d.fragrance_notes.length > 0) {
-            const notesArray = d.fragrance_notes.split(',').map(note => note.trim());
-            
-            // Check if this orchid has any specific fragrance notes
-            const hasSpecificNotes = notesArray.some(note => 
-                note.toLowerCase() !== "fragrant" && getFragranceType(note)
-            );
-            
-            if (hasSpecificNotes) {
-                orchidsWithSpecificFragrances++;
+    // Store max counts when "All" is selected
+    if (pollinatorType === "All") {
+        // Calculate and store maximum counts for each note
+        const allNoteCounts = new Map();
+        globalData.forEach(d => {
+            if (d.fragrance_notes) {
+                const notesArray = d.fragrance_notes.toLowerCase().split(',')
+                    .map(note => note.trim());
+                
                 notesArray.forEach(note => {
-                    if (note.toLowerCase() !== "fragrant") {
+                    if (note !== "fragrant") {
                         const fragranceType = getFragranceType(note);
-
                         if (fragranceType) {
-                            if (!fragranceNoteCounts.has(note)) {
-                                fragranceNoteCounts.set(note, { 
+                            if (!allNoteCounts.has(note)) {
+                                allNoteCounts.set(note, { 
                                     count: 0, 
                                     fragranceType: fragranceType 
                                 });
                             }
-                            const noteData = fragranceNoteCounts.get(note);
+                            const noteData = allNoteCounts.get(note);
                             noteData.count += 1;
                         }
                     }
                 });
             }
+        });
+        maxFragranceCounts = allNoteCounts;
+    }
+
+    // Calculate current counts (for current pollinator selection)
+    const currentNoteCounts = new Map();
+    filteredData.forEach(d => {
+        if (d.fragrance_notes) {
+            const notesArray = d.fragrance_notes.toLowerCase().split(',')
+                .map(note => note.trim());
+            
+            notesArray.forEach(note => {
+                if (note !== "fragrant") {
+                    const fragranceType = getFragranceType(note);
+                    if (fragranceType) {
+                        if (!currentNoteCounts.has(note)) {
+                            currentNoteCounts.set(note, { 
+                                count: 0, 
+                                fragranceType: fragranceType 
+                            });
+                        }
+                        const noteData = currentNoteCounts.get(note);
+                        noteData.count += 1;
+                    }
+                }
+            });
         }
     });
 
-    console.log(`Orchids with specific fragrances: ${orchidsWithSpecificFragrances}`);
-    console.log('Fragrance distribution:', Object.fromEntries(fragranceNoteCounts));
+    // Create visualization data using ALL notes from maxFragranceCounts
+    const newData = Array.from(maxFragranceCounts.entries()).map(([note, maxData]) => {
+        const currentData = currentNoteCounts.get(note);
+        return {
+            note,
+            count: currentData ? currentData.count : 0,  // Current count or 0 if none
+            maxCount: maxData.count,  // Keep track of max count
+            fragranceType: maxData.fragranceType
+        };
+    });
 
-    // If "All" is selected, update our maximum counts
-    if (pollinatorType === "All") {
-        maxFragranceCounts = new Map(fragranceNoteCounts);
-    }
-
-    // Convert to array format, using maxCounts for scaling
-    const newData = Array.from(fragranceNoteCounts, ([note, data]) => ({
-        note,
-        count: data.count,
-        maxCount: maxFragranceCounts.get(note)?.count || data.count,
-        fragranceType: data.fragranceType,
-        percentage: (data.count / orchidsWithSpecificFragrances * 100).toFixed(1)
-    }));
-
-    console.log('Final data for visualization:', newData);
-
-    // Scale should always use the maximum counts from "All"
+    // Scale using the maximum counts from "All" selection
     y.domain([0, d3.max(Array.from(maxFragranceCounts.values()), d => d.count)]);
 
-    // Update the bars with transition
-    svg.selectAll("path")
-        .data(newData, d => d.note)
-        .transition()
+    // Update visualization
+    const bars = svg.selectAll("path")
+        .data(newData, d => d.note);
+
+    bars.transition()
         .duration(750)
         .attr("d", arcGenerator)
         .style("opacity", d => d.count === 0 ? 0.2 : 1)
-        .attr("stroke", d => colorMapping[d.fragranceType])
-        .attr("stroke-width", "2px");
-
-    // Update center text to show both counts
-    svg.select(".count-text")
-        .text(`total: ${filteredData.length} (specific: ${orchidsWithSpecificFragrances})`);
 }
