@@ -83,15 +83,27 @@ const arcGenerator = d3.arc()
 
 // Load your data from the JSON file
 const datasetURL = "updatedOrchidData.json";
+
+
 d3.json(datasetURL).then(data => {
+
+    //Modal
+    const modal = document.getElementById('orchidModal');
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
 
   // Store data globally
   globalData = data;
 
-  // Modify image URLs to include &max_w=90
+  // Modify image URLs to include &max_w=200
   data.forEach(d => {
     if (d.image_url) {
-      d.image_url = `${d.image_url}&max_w=90`;
+      d.image_url = `${d.image_url}&max_w=200`;
     }
   });
   
@@ -118,6 +130,17 @@ d3.json(datasetURL).then(data => {
         .attr("data-fragrance-notes", d => {
             if (!d.fragrance_notes) return "";
             return d.fragrance_notes.toLowerCase();
+        })
+        .on("click", function(event, d) {
+            // Update modal content
+            modal.querySelector('.modal-image img').src = d.image_url;
+            modal.querySelector('.modal-title').textContent = d.common_name;
+            modal.querySelector('#pollination').textContent = `Pollination: ${d.pollination_syndrome}`;
+            modal.querySelector('#fragrance').textContent = `Fragrance: ${d.fragrance}`;
+            modal.querySelector('.modal-link').href = d.guid_link;
+            
+            // Show modal
+            modal.style.display = "block";
         })
         .on("mouseover", function(event, d) {
             imageTooltip2.transition()
@@ -151,6 +174,17 @@ d3.json(datasetURL).then(data => {
             if (!d.fragrance_notes) return "";
             return d.fragrance_notes.toLowerCase();
         })
+        .on("click", function(event, d) {
+            // Update modal content
+            modal.querySelector('.modal-image img').src = d.image_url;
+            modal.querySelector('.modal-title').textContent = d.common_name;
+            modal.querySelector('#pollination').textContent = `Pollination: ${d.pollination_syndrome}`;
+            modal.querySelector('#fragrance').textContent = `Fragrance: ${d.fragrance}`;
+            modal.querySelector('.modal-link').href = d.guid_link;
+            
+            // Show modal
+            modal.style.display = "block";
+        })
         .on("mouseover", function(event, d) {
             imageTooltip2.transition()
                 .duration(200)
@@ -176,47 +210,46 @@ d3.json(datasetURL).then(data => {
 
   // Process each data entry
   data.forEach(d => {
-    data.forEach(d => {
-        if (d.fragrance_notes && d.fragrance_notes.length > 0) {
-            // Get unique fragrance notes for this orchid
-            const notesArray = [...new Set(d.fragrance_notes.toLowerCase()
-                .split(',')
-                .map(note => note.trim()))]
-                .filter(note => note !== "" && note.toLowerCase() !== "fragrant");
-    
-            // Count each unique note only once per orchid
-            notesArray.forEach(note => {
-                const fragranceType = getFragranceType(note);
-                if (fragranceType) {
-                    if (!fragranceNoteCounts.has(note)) {
-                        fragranceNoteCounts.set(note, { 
-                            count: 0, 
-                            fragranceType: fragranceType,
-                            orchids: new Set() // Track unique orchids with this note
-                        });
-                    }
-                    // Add this orchid to the set for this note
-                    fragranceNoteCounts.get(note).orchids.add(d.guid_link); // Using guid_link as unique identifier
-                    fragranceNoteCounts.get(note).count = fragranceNoteCounts.get(note).orchids.size;
-                } else {
-                    console.warn(`No fragrance type found for note: ${note}`);
+    if (d.fragrance_notes && d.fragrance_notes.length > 0) {
+        // Get unique fragrance notes for this orchid
+        const notesArray = [...new Set(d.fragrance_notes.toLowerCase()
+            .split(',')
+            .map(note => note.trim()))]
+            .filter(note => note !== "" && note.toLowerCase() !== "fragrant");
+
+        // Count each unique note only once per orchid
+        notesArray.forEach(note => {
+            const fragranceType = getFragranceType(note);
+            if (fragranceType) {
+                if (!fragranceNoteCounts.has(note)) {
+                    fragranceNoteCounts.set(note, { 
+                        count: 0, 
+                        fragranceType: fragranceType,
+                        orchids: new Set() // Track unique orchids with this note
+                    });
                 }
-            });
-        }
-    });
-
-    // Initialize currentFilteredCounts with the initial "All" state counts
-    currentFilteredCounts = new Map(
-        Array.from(fragranceNoteCounts).map(([note, data]) => [
-            note,
-            {
-                count: data.orchids.size,
-                fragranceType: data.fragranceType,
-                orchids: new Set(data.orchids)
+                // Add this orchid to the set for this note
+                fragranceNoteCounts.get(note).orchids.add(d.guid_link); // Using guid_link as unique identifier
+                fragranceNoteCounts.get(note).count = fragranceNoteCounts.get(note).orchids.size;
+            } else {
+                console.warn(`No fragrance type found for note: ${note}`);
             }
-        ])
-    );
+        });
+    }
 
+
+// Initialize currentFilteredCounts with the initial "All" state counts
+currentFilteredCounts = new Map(
+    Array.from(fragranceNoteCounts).map(([note, data]) => [
+        note,
+        {
+            count: data.orchids.size,
+            fragranceType: data.fragranceType,
+            orchids: new Set(data.orchids)
+        }
+    ])
+);
+    
     createPollinatorButtons();
     
     // Add center count text if it doesn't exist
@@ -276,43 +309,52 @@ function brightenColor(color, factor) {
 
 /// Create the bars
     const bars = svg.append("g")
-        .selectAll("path")
-        .data(formattedData)
-        .enter()
-        .append("path")
-        .attr("fill", d => colorMapping[d.fragranceType])
-        .attr("d", arcGenerator)
-        .attr("data-original-color", d => colorMapping[d.fragranceType])
-        .on("mouseover", function(event, d) {
-            if (selectedFragranceNotes.length === 0) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                    
-                // Use the filtered counts for the tooltip
-                const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-                tooltip.html(`${d.note}: ${currentCount}`)
-                    .style("left", (event.pageX + 5) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+    .selectAll("path")
+    .data(formattedData)
+    .enter()
+    .append("path")
+    .attr("fill", d => colorMapping[d.fragranceType])
+    .attr("d", arcGenerator)
+    .attr("data-original-color", d => colorMapping[d.fragranceType])
+    .on("mouseover", function(event, d) {
+        // Show tooltip regardless of selection state
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+            
+        const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
+        tooltip.html(`${d.note}: ${currentCount}`)
+            .style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY - 28) + "px");
 
-                const originalColor = d3.select(this).attr("data-original-color");
-                d3.select(this).attr("fill", brightenColor(originalColor, 1.5));
-            }
-        })
-        .on("mouseout", function() {
-            if (selectedFragranceNotes.length === 0) {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
+        // Only brighten if not selected
+        if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
+            const originalColor = d3.select(this).attr("data-original-color");
+            d3.select(this).attr("fill", brightenColor(originalColor, 1.5));
+        }
+    })
+    .on("mouseout", function(event, d) {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
 
-                const originalColor = d3.select(this).attr("data-original-color");
-                d3.select(this).attr("fill", originalColor);
-            }
-        })
+        // Only reset color if not selected
+        if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
+            const originalColor = d3.select(this).attr("data-original-color");
+            d3.select(this).attr("fill", originalColor);
+        }
+    })
     .on("click", function(event, d) {
+        event.stopPropagation(); // Prevent event bubbling
+        
         const selectedNote = d.note.toLowerCase();
         
-        // Toggle the selected note
+        // Hide tooltip
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0);
+        
+        // Toggle selection
         const index = selectedFragranceNotes.indexOf(selectedNote);
         if (index > -1) {
             selectedFragranceNotes.splice(index, 1);
@@ -320,25 +362,80 @@ function brightenColor(color, factor) {
             selectedFragranceNotes.push(selectedNote);
         }
         
-        // Update bar highlighting
-        if (selectedFragranceNotes.length > 0) {
-            d3.selectAll("path").attr("opacity", 0.5);
-            selectedFragranceNotes.forEach(note => {
-                d3.selectAll("path")
-                    .filter(d => d.note.toLowerCase() === note)
-                    .attr("opacity", 1)
-                    .attr("fill", d => colorMapping[d.fragranceType]);
+        // Update all bars based on selection state
+        svg.selectAll("path")
+            .each(function(d) {
+                if (!d || !d.note) return;
+                
+                const isSelected = selectedFragranceNotes.includes(d.note.toLowerCase());
+                const path = d3.select(this);
+                
+                if (selectedFragranceNotes.length > 0) {
+                    // If we have selections, dim unselected bars
+                    if (isSelected) {
+                        path
+                            .attr("opacity", 1)
+                            .attr("fill", colorMapping[d.fragranceType]);
+                    } else {
+                        path
+                            .attr("opacity", 0.2)
+                            .attr("fill", colorMapping[d.fragranceType]);
+                    }
+                } else {
+                    // If no selections, reset all bars
+                    path
+                        .attr("opacity", 1)
+                        .attr("fill", colorMapping[d.fragranceType]);
+                }
             });
-        } else {
-            d3.selectAll("path")
-                .attr("opacity", 1)
-                .attr("fill", d => colorMapping[d.fragranceType]);
-        }
         
         // Update photo strips
         updatePhotoStrips(selectedFragranceNotes);
     });
+
+     // ADD LABELS HERE - after bars creation
+     const labelRadius = innerRadius - 18;
+     const labelGroup = svg.append("g")
+         .attr("class", "label-group");
+ 
+     const labelSettings = [
+         { type: "floral", angle: -45 },
+         { type: "fruity", angle: -15 },
+         { type: "sweet", angle: 172},
+         { type: "pleasant", angle: 155 },
+         { type: "unpleasant", angle: 130 },
+         { type: "earthy", angle: 105 },
+         { type: "spicy", angle: 75 }
+     ];
+ 
+     labelSettings.forEach(({type, angle}, i) => {
+         const pathId = `labelPath${i}`;
+         const angleRad = (angle * Math.PI) / 180;
+         
+         const path = labelGroup.append("path")
+             .attr("id", pathId)
+             .attr("d", d3.arc()
+                 .innerRadius(labelRadius)
+                 .outerRadius(labelRadius)
+                 .startAngle(0)
+                 .endAngle(2 * Math.PI)
+             )
+             .style("fill", "none")
+             .style("stroke", "none");
+ 
+         labelGroup.append("text")
+             .append("textPath")
+             .attr("href", `#${pathId}`)
+             .attr("startOffset", `${((angle + 180) / 360) * 100}%`)
+             .style("text-anchor", "middle")
+             .style("alignment-baseline", "middle")
+             .style("fill", colorMapping[type])
+             .style("font-family", "PPFranktionMono")
+             .style("font-size", "0.8rem")
+             .text(type);
+     });
 });
+
 
 function updatePhotoStrips(selectedNotes) {
     console.log("Filtering with:", {
@@ -428,15 +525,11 @@ function createPollinatorButtons() {
             // Reset fragrance selection
             selectedFragranceNotes = [];
             
-            // Reset bar highlighting
-            d3.selectAll("path")
-                .attr("opacity", 1)
-                .attr("fill", d => colorMapping[d.fragranceType]);
-            
-            // Update visualization and photo strips
+            // Update visualization
             updateVisualizationForPollinator(d);
         });
 }
+
 
 // calculate fragrance counts for pollinators
 function calculateFragranceCounts(pollinatorType) {
@@ -476,7 +569,6 @@ function updateVisualizationForPollinator(pollinatorType) {
     
     filteredData.forEach(d => {
         if (d.fragrance_notes) {
-            // Get unique fragrance notes
             const notes = [...new Set(d.fragrance_notes.toLowerCase()
                 .split(',')
                 .map(note => note.trim()))]
@@ -492,7 +584,6 @@ function updateVisualizationForPollinator(pollinatorType) {
                             orchids: new Set()
                         });
                     }
-                    // Add this orchid to the set for this note
                     currentFilteredCounts.get(note).orchids.add(d.guid_link);
                     currentFilteredCounts.get(note).count = currentFilteredCounts.get(note).orchids.size;
                 }
@@ -500,26 +591,44 @@ function updateVisualizationForPollinator(pollinatorType) {
         }
     });
 
-    // Update the visualization...
-    svg.selectAll("path")
-        .transition()
+    // Update the bars with smoother transitions
+    const paths = svg.selectAll("path");
+    
+    // First update the data binding
+    paths.each(function(d) {
+        if (d && d.note) {
+            d.prevCount = d.count || 0; // Store previous count
+            d.count = currentFilteredCounts.get(d.note)?.count || 0; // Set new count
+        }
+    });
+
+    // Then apply the transition
+    paths.transition()
         .duration(750)
-        .attr("d", d => {
-            const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-            return arcGenerator({
-                ...d,
-                count: currentCount
-            });
+        .attrTween("d", function(d) {
+            if (!d || !d.note) return;
+            
+            const startCount = d.prevCount || 0;
+            const endCount = currentFilteredCounts.get(d.note)?.count || 0;
+            
+            return function(t) {
+                const interpolatedCount = startCount + (endCount - startCount) * t;
+                return arcGenerator({
+                    ...d,
+                    count: interpolatedCount
+                });
+            };
         })
         .style("opacity", d => {
-            const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-            return currentCount === 0 ? 0.2 : 1;
+            if (!d || !d.note) return 0.2;
+            const count = currentFilteredCounts.get(d.note)?.count || 0;
+            return count === 0 ? 0.2 : 1;
         });
 
-    // Update center text with total unique orchids
-    const totalOrchids = filteredData.length;
+    // Update center text
     svg.select(".count-text")
-        .text(`count: ${totalOrchids}`);
+        .text(`count: ${filteredData.length}`);
 
+    // Update photo strips
     updatePhotoStrips(selectedFragranceNotes);
 }

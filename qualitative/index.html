@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="style.css"> <!-- Link to your CSS file -->
 </head>
 <body>
+  <div id="title">Blooming Orchids</div>
+  <div id="subtitle">Pollinators & Fragrances</div>
 
   <div id="pollinator-buttons"></div> 
 
@@ -19,7 +21,19 @@
 
   <div class="photo-strip" id="photo-strip-2"></div>
   
-  
+  <div id="orchidModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-image">
+            <img src="" alt="Orchid Image">
+        </div>
+        <div class="modal-details">
+            <h2 class="modal-title"></h2>
+            <div class="modal-field" id="pollination"></div>
+            <div class="modal-field" id="fragrance"></div>
+            <a href="#" class="modal-link" target="_blank">View Source</a>
+        </div>
+    </div>
+  </div>
 
   <script type="module" async src="js/main.js"></script>
   <script src="https://unpkg.com/d3-interpolate-path"></script>
