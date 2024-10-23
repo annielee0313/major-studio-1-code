@@ -20,27 +20,6 @@ body {
     margin: 0;
 }
 
-
-#toggle-buttons {
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    z-index: 20;
-  }
-  
-  #toggle-buttons button {
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    margin: 0 5px;
-  }
-  
-  #toggle-buttons button.active {
-    background-color: #007BFF; /* Active color */
-    color: white;
-  }
-
-
   #app4 {
     position: fixed;    /* Fix the chart on the screen */
 }
@@ -76,7 +55,7 @@ body {
     position: absolute; 
     top: 20px;
     width: 90px;       /* Set width of photo strips */
-    background-color: #fff; 
+    background-color: black; 
     z-index: 15;
 }
 
@@ -91,4 +70,39 @@ body {
 .photo-strip img {
     width: 90px;              /* Set image width */
     margin-bottom: 5px;      /* Space between images */
+}
+
+/* Pollinator Buttons */
+#pollinator-buttons {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    z-index: 20;
+    background: transparent;
+    padding: 10px;
+}
+
+.pollinator-btn {
+    padding: 8px 16px;
+    border: 1px solid #666;
+    border-radius: 20px;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'PPFranktionMono', monospace;
+    font-size: 0.8rem;
+}
+
+.pollinator-btn:hover {
+    background: #444;
+}
+
+.pollinator-btn.active {
+    background: #666;
+    color: white;
 }

@@ -191,7 +191,6 @@ document.addEventListener("DOMContentLoaded", function () {
     d3.selectAll(".tooltip").remove();
     });
   }
-
     
 
       // Handle scroll and update the bubble chart based on the current month

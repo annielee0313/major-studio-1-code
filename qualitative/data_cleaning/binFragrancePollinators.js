@@ -18,10 +18,10 @@ fetch('./extractedQualData.json')
         // Step 3: Define fragrance categories with keywords
         const fragranceCategories = {
             "pleasant": ["pleasant", "fragrant", "faint", "sometimes"],
-            "sweet": ["honey", "sweet", "vanilla", "candy", "chocolate", "baby powder"],
-            "earthy": ["rye bread", "almond", "eucalyptus", "anise", "wintergreen", "musty", "turpentine", "vegetable", "cheap cigars", "musky", "mushroom"],
-            "floral": ["nasturtium", "narcissus", "gardenia", "floral", "lilies", "jasmine", "lily of the valley", "hyacinth", "lilac", "lilic"],
-            "fruity": ["bananas", "peach", "apple", "citrus", "rose", "fruity", "oranges", "citronella", "coconut", "lemon"],
+            "sweet": ["honey", "sweet", "vanilla", "candy", "chocolate", "baby powder", "musky"],
+            "earthy": ["rye bread", "almond", "eucalyptus", "anise", "wintergreen", "musty", "turpentine", "vegetable", "cheap cigars", "mushroom"],
+            "floral": ["nasturtium", "narcissus", "gardenia", "floral", "lilies", "jasmine", "lily of the valley", "hyacinth", "lilac", "lilic", "rose"],
+            "fruity": ["bananas", "peach", "apple", "citrus", "fruity", "oranges", "citronella", "coconut", "lemon"],
             "spicy": ["nutmeg", "anise", "mint", "spicy", "cinnamon", "clove", "licorice", "pepper", "peppermint", "minty"],
             "unpleasant": ["unpleasant", "foul", "rotten", "rotten waste", "rotten meat", "rancid cheese", "dental plaque", "fungus", "fetid", "fishy", "bitter"]
         };
