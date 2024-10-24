@@ -97,6 +97,28 @@ d3.json(datasetURL).then(data => {
         }
     }
 
+    // Info modal functionality
+    const infoIcon = document.getElementById('info-icon');
+    const infoModal = document.getElementById('infoModal');
+
+    if (infoIcon && infoModal) {
+        infoIcon.addEventListener('click', function(event) {
+            console.log('Icon clicked');
+            event.stopPropagation();
+            infoModal.style.display = "block";
+        });
+
+        infoModal.addEventListener('click', function() {
+            console.log('Modal clicked - hiding');
+            infoModal.style.display = "none";
+        });
+    }
+
+    // Make sure modal is hidden initially
+    if (infoModal) {
+        infoModal.style.display = 'none';
+    }
+
   // Store data globally
   globalData = data;
 
@@ -657,3 +679,4 @@ function updateVisualizationForPollinator(pollinatorType) {
     // Update photo strips
     updatePhotoStrips(selectedFragranceNotes);
 }
+

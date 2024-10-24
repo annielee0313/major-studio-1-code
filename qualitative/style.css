@@ -11,8 +11,8 @@
 }
 
 body {
-    /*background-color: #050505; Base color */
     background-color: #0B1A0B;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
@@ -23,45 +23,110 @@ body {
 
 
 #title {
-    top: 3%;
+    z-index: 2;
+    top: 20px;
     position: fixed;
-    font-size: 3rem;
+    font-size: 4rem;
     color:#BBFFB0;
     font-family: 'SnellBT', sans-serif;
 }
 
+#info-icon {
+    cursor: pointer;
+    fill: none;
+    margin-bottom: 25px;
+    margin-left: -13px;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .info-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    overflow: auto;
+    cursor: pointer;
+}
+
+.info-modal-content {
+    width: 500px;  /* Fixed width for info modal */
+    margin: 15% auto;
+    cursor: default;
+}
+
+.info-modal-content h2 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    font-family: 'PPFranktionMono', monospace;
+}
+
+.info-modal-content p {
+    color: white;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-family: 'PPFranktionMono', monospace;
+    font-size: 0.8rem;
+}
+
+.info-link, 
+.info-link:visited, 
+.info-link:active {
+    text-decoration: underline;
+    color: white;
+    transition: opacity 0.3s;
+}
+
+.info-link:hover {
+    opacity: 0.8;
+    color: white;  /* Ensure it stays white on hover too */
+}
 
 #subtitle {
-    top: 9%;
+    top: 100px;
     position: fixed;
     color:white;
     font: 1rem 'PPFranktionMono', sans-serif;
 }
 
   #app4 {
-    position: fixed;    /* Fix the chart on the screen */
+    position: fixed;    
+    z-index: 1;
 }
 
+/* Bar Tooltip */
 .tooltip {
     position: absolute;
     text-align: center;
     padding: 5px;
     font: 0.8rem 'PPFranktionMono', sans-serif;
     color: white;
-    background: black;
+    background: #080808;
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
     z-index: 10;
 }
 
+
+/* Image Tooltip */
 .tooltip2 {
     position: absolute;
-    text-align: center;
-    padding: 5px;
+    text-align: left;
+    padding: 10px;
     font: 0.8rem 'PPFranktionMono', sans-serif;
     color: white;
-    background: blue;
+    background: #070807;
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
@@ -71,24 +136,9 @@ body {
 
 .photo-strip {
     position: absolute; 
-    top: 8%;
-    width: 110px;
-    background-color: black; 
-    z-index: 15;
-}
-
-.photo-strip img {
-    width: 90px;
-    margin: 0 auto 5px auto; /* Centers horizontally with 5px bottom margin */
-    display: block; /* Required for margin auto to work */
-}
-
-/* OR Solution 2: Using flexbox (recommended) */
-.photo-strip {
-    position: absolute; 
     top: 0;
-    width: 110px;
-    background-color: black; 
+    width: 130px;
+    background-color: #070807; 
     z-index: 15;
     display: flex;
     flex-direction: column;
@@ -96,7 +146,7 @@ body {
 }
 
 .photo-strip img {
-    width: 90px;
+    width: 110px;
     margin-bottom: 5px;
 }
 
@@ -190,12 +240,12 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 500;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0,0,0,0.3);
     overflow: auto;
     cursor: pointer; /* Indicates clickable area */
 }
@@ -203,11 +253,11 @@ body {
 .modal-content {
     display: flex;
     gap: 0.5rem;
-    background-color: #000;
+    background-color: #070807;
     margin: 15% auto;
     padding: 1rem;
     border: 1px solid #666;
-    border-radius: 15px;
+    border-radius: 10px;
     width: 40%;
     max-width: 1200px;
     cursor: default; /* Reset cursor for content area */
@@ -235,7 +285,7 @@ body {
 
 .modal-title {
     font-size: 1.4rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
 }
 
 .modal-field {
@@ -245,9 +295,9 @@ body {
 .modal-link {
     display: inline-block;
     font-size: 0.7rem;
-    margin-top: 1rem;
+    margin-top: 3rem;
     padding: 0.4rem 1rem;
-    background-color: #333;
+    background-color: transparent;
     color: white;
     text-decoration: none;
     border: 1px solid #666;

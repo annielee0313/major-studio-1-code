@@ -10,8 +10,31 @@
     <link rel="stylesheet" href="style.css"> <!-- Link to your CSS file -->
 </head>
 <body>
-  <div id="title">Blooming Orchids</div>
-  <div id="subtitle">Pollinators & Fragrances</div>
+  <div id="title">Blooming Orchids
+    <svg id="info-icon" width="20" height="20" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <circle cx="12" cy="8" r="0.5"></circle>
+    </svg>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="infoModal" class="info-modal">  <!-- Changed from class="modal" -->
+    <div class="info-modal-content">
+      <h2>About This Project</h2>
+      <p>
+        This visualization uses <a href="https://www.si.edu/OpenAccess" target="_blank" class="info-link">Smithsonian Open Access</a> orchid data that includes fragrance and pollinator information. I cleaned the data to visualize the relationship between orchid fragrances and their pollinators, grouping similar fragrance notes into categories and mapping them to their respective pollinators.
+      </p>
+      <p>
+        Explore the visualization by selecting different pollinator types and clicking on fragrance bars to see how scent preferences vary among different pollinators. You can also click on the orchid images to learn more about each species.
+      </p>
+      <p>
+        ~ Annie Lee for MS1
+      </p>
+    </div>
+  </div>
+
+  <div id="subtitle">Pollinators & Fragrances </div>
 
   <div id="pollinator-buttons"></div> 
 
