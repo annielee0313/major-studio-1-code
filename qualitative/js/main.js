@@ -249,7 +249,7 @@ currentFilteredCounts = new Map(
         }
     ])
 );
-    
+
     createPollinatorButtons();
     
     // Add center count text if it doesn't exist
@@ -309,89 +309,114 @@ function brightenColor(color, factor) {
 
 /// Create the bars
     const bars = svg.append("g")
-    .selectAll("path")
-    .data(formattedData)
-    .enter()
-    .append("path")
-    .attr("fill", d => colorMapping[d.fragranceType])
-    .attr("d", arcGenerator)
-    .attr("data-original-color", d => colorMapping[d.fragranceType])
-    .on("mouseover", function(event, d) {
-        // Show tooltip regardless of selection state
-        tooltip.transition()
-            .duration(200)
-            .style("opacity", .9);
+        .selectAll("path")
+        .data(formattedData)
+        .enter()
+        .append("path")
+        .attr("fill", d => colorMapping[d.fragranceType])
+        .attr("d", arcGenerator)
+        .attr("data-original-color", d => colorMapping[d.fragranceType])
+        .on("mouseover", function(event, d) {
+            // Show tooltip regardless of selection state
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+                
+            const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
+            tooltip.html(`${d.note}: ${currentCount}`)
+                .style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+
+            // Only brighten if not selected
+            if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
+                const originalColor = d3.select(this).attr("data-original-color");
+                d3.select(this).attr("fill", brightenColor(originalColor, 1.5));
+            }
+        })
+        .on("mouseout", function(event, d) {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+
+            // Only reset color if not selected
+            if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
+                const originalColor = d3.select(this).attr("data-original-color");
+                d3.select(this).attr("fill", originalColor);
+            }
+        })
+        .on("click", function(event, d) {
+            event.stopPropagation(); // Prevent event bubbling
             
-        const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-        tooltip.html(`${d.note}: ${currentCount}`)
-            .style("left", (event.pageX + 5) + "px")
-            .style("top", (event.pageY - 28) + "px");
-
-        // Only brighten if not selected
-        if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
-            const originalColor = d3.select(this).attr("data-original-color");
-            d3.select(this).attr("fill", brightenColor(originalColor, 1.5));
-        }
-    })
-    .on("mouseout", function(event, d) {
-        tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
-
-        // Only reset color if not selected
-        if (!selectedFragranceNotes.includes(d.note.toLowerCase())) {
-            const originalColor = d3.select(this).attr("data-original-color");
-            d3.select(this).attr("fill", originalColor);
-        }
-    })
-    .on("click", function(event, d) {
-        event.stopPropagation(); // Prevent event bubbling
-        
-        const selectedNote = d.note.toLowerCase();
-        
-        // Hide tooltip
-        tooltip.transition()
-            .duration(200)
-            .style("opacity", 0);
-        
-        // Toggle selection
-        const index = selectedFragranceNotes.indexOf(selectedNote);
-        if (index > -1) {
-            selectedFragranceNotes.splice(index, 1);
-        } else {
-            selectedFragranceNotes.push(selectedNote);
-        }
-        
-        // Update all bars based on selection state
-        svg.selectAll("path")
-            .each(function(d) {
-                if (!d || !d.note) return;
-                
-                const isSelected = selectedFragranceNotes.includes(d.note.toLowerCase());
-                const path = d3.select(this);
-                
-                if (selectedFragranceNotes.length > 0) {
-                    // If we have selections, dim unselected bars
-                    if (isSelected) {
+            const selectedNote = d.note.toLowerCase();
+            
+            // Hide tooltip
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
+            
+            // Toggle selection
+            const index = selectedFragranceNotes.indexOf(selectedNote);
+            if (index > -1) {
+                selectedFragranceNotes.splice(index, 1);
+            } else {
+                selectedFragranceNotes.push(selectedNote);
+            }
+            
+            // Update all bars based on selection state
+            svg.selectAll("path:not(.inner-structure)") 
+                .each(function(d) {
+                    if (!d || !d.note) return;
+                    
+                    const isSelected = selectedFragranceNotes.includes(d.note.toLowerCase());
+                    const path = d3.select(this);
+                    
+                    if (selectedFragranceNotes.length > 0) {
+                        // If we have selections, dim unselected bars
+                        if (isSelected) {
+                            path
+                                .attr("opacity", 1)
+                                .attr("fill", colorMapping[d.fragranceType]);
+                        } else {
+                            path
+                                .attr("opacity", 0.2)
+                                .attr("fill", colorMapping[d.fragranceType]);
+                        }
+                    } else {
+                        // If no selections, reset all bars
                         path
                             .attr("opacity", 1)
                             .attr("fill", colorMapping[d.fragranceType]);
-                    } else {
-                        path
-                            .attr("opacity", 0.2)
-                            .attr("fill", colorMapping[d.fragranceType]);
                     }
-                } else {
-                    // If no selections, reset all bars
-                    path
-                        .attr("opacity", 1)
-                        .attr("fill", colorMapping[d.fragranceType]);
-                }
-            });
-        
-        // Update photo strips
-        updatePhotoStrips(selectedFragranceNotes);
-    });
+                });
+            
+            // Update photo strips
+            updatePhotoStrips(selectedFragranceNotes);
+        });
+    
+
+    // inner rim
+    const staticData = formattedData.map(d => ({
+            ...d,
+            note: d.note,
+            fragranceType: d.fragranceType
+        }));
+
+    const innerStructure = svg.append("g")
+        .selectAll("path.inner-structure")
+        .data(staticData)  // Use staticData instead of formattedData
+        .enter()
+        .append("path")
+        .attr("class", "inner-structure")
+        .attr("fill", "none")
+        .attr("stroke", d => colorMapping[d.fragranceType])
+        .attr("stroke-width", 0.8)
+        .attr("d", d3.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(innerRadius + 0.8)
+            .startAngle(d => x(d.note))
+            .endAngle(d => x(d.note) + x.bandwidth())
+        )
+        .style("pointer-events", "none");
 
      // ADD LABELS HERE - after bars creation
      const labelRadius = innerRadius - 18;
@@ -592,7 +617,7 @@ function updateVisualizationForPollinator(pollinatorType) {
     });
 
     // Update the bars with smoother transitions
-    const paths = svg.selectAll("path");
+    const paths = svg.selectAll("path:not(.inner-structure)");
     
     // First update the data binding
     paths.each(function(d) {
