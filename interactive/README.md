@@ -1,4 +1,6 @@
 ## Interactive Ideas
+![Slide 16_9 - 4](https://github.com/user-attachments/assets/97f7f953-52ca-49e6-92c8-000108dcb66e)
+
 ![interactive](https://github.com/user-attachments/assets/863fc927-429f-4cb5-83a8-51a753300791)
 
 
