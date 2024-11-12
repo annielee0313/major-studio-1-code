@@ -16,7 +16,7 @@ maybe remove image background → add blooming animation
 
 ### 2. Orchid Hybridization 
 Orchid growers select two parent orchids with desirable traits and use a toothpick to pollinate one with pollen from the other. The resulting hybrid will have traits from both parents. 
-I want to imagining the ideal orchid for each pollinator. (e.g. flies like unpleasant scents, bees can’t see the color blue). 
+I want to imagine the ideal orchid for each pollinator. (e.g. flies like unpleasant scents, bees can’t see the color blue). 
 I can feed midjourney the average life form, stem length, bloom width, number of flowers to get ai generated orchids. Also analyze the taxonomy to create a breakdown of existing types of orchids?
 ![Untitled_Artwork 32](https://github.com/user-attachments/assets/c8293cbc-e1d4-48f0-8eab-3a460d37d7ed)
 
