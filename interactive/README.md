@@ -1,7 +1,7 @@
 ## Interactive Ideas
 ![Slide 16_9 - 4](https://github.com/user-attachments/assets/97f7f953-52ca-49e6-92c8-000108dcb66e)
 
-![interactive3](https://github.com/user-attachments/assets/496a054e-9d6e-426c-80bc-6acb4010f2eb)
+![interactive4](https://github.com/user-attachments/assets/9b611511-88a6-4265-b014-c7274a0caf84)
 
 ![interactive](https://github.com/user-attachments/assets/863fc927-429f-4cb5-83a8-51a753300791)
 
