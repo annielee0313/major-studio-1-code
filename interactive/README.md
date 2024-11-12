@@ -1,4 +1,6 @@
 ## Interactive Ideas
+![interactive](https://github.com/user-attachments/assets/863fc927-429f-4cb5-83a8-51a753300791)
+
 
 ### 1. Combine viz 1 & 2 
 Combine quant and qualitative projects 
