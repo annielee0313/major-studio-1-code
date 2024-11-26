@@ -1,9 +1,13 @@
 let globalData = [];  // hold our dataset
 let maxFragranceCounts = new Map(); // max count for each bar
 let selectedPollinatorType = "All";  // Track current pollinator selection
-let currentMonth = "March";  // Placeholder for month filter
+let currentMonth = "January";  // Placeholder for month filter
 let selectedFragranceNotes = []; // Array to store selected fragrance notes
 let currentFilteredCounts = new Map(); // store count for the tooltip
+
+// Add months array at the top level
+const months = ['All', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 
 const POLLINATOR_TYPES = [
     "All",
@@ -44,16 +48,15 @@ function getFragranceType(note) {
 // get spec sheet width
 function getSpecSheetWidth() {
     const specSheet = document.querySelector('.spec-sheet');
-    // Account for padding by subtracting 4rem (2rem on each side)
-    return specSheet ? specSheet.clientWidth - 64 : 300; // 64px = 4rem, fallback to 300
+    return specSheet ? specSheet.clientWidth : 300;
 }
 
 // Set dimensions and margins of the graph
 var margin = {
-    top: 20,
-    right: 20,
-    bottom: 20,
-    left: 20
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
 };
 
 var width = getSpecSheetWidth();
@@ -86,9 +89,6 @@ window.addEventListener('resize', function() {
     // Update scales
     outerRadius = newWidth * 0.4;
     y.range([innerRadius, outerRadius]);
-    
-    // Redraw chart
-    updateVisualization(); // You'll need to implement this function to redraw the chart
 });
 
 // Define custom colors for each fragrance type
@@ -443,15 +443,14 @@ function createPollinatorButtons() {
             // Update selected pollinator type
             selectedPollinatorType = d;
             
-            // Update the spec sheet title
-            updateSpecSheetTitle();
-            
-            // Update visualization
+            // Update visualization and title
             updateVisualizationForPollinator(d);
+            updatePollinatorTitle(d);
         });
 
-    // Initialize the title
-    updateSpecSheetTitle();
+    // Initialize with "All" pollinator and first month
+    updatePollinatorTitle("All");
+    updateMonthTitle(months[0]);
 }
 
 
@@ -480,15 +479,22 @@ function calculateFragranceCounts(pollinatorType) {
 }
 
 function updateVisualizationForPollinator(pollinatorType) {
-    // Filter data based on pollinator type
-    const filteredData = pollinatorType === "All" 
-        ? globalData 
-        : globalData.filter(d => {
-            const pollinators = d.pollinator_types.split(',').map(p => p.trim());
-            return pollinators.includes(pollinatorType);
-        });
+    // Filter data based on pollinator type and current month
+    const filteredData = globalData.filter(d => {
+        const pollinatorMatch = pollinatorType === "All" 
+            ? true 
+            : d.pollinator_types.split(',').map(p => p.trim()).includes(pollinatorType);
+        
+        if (currentMonth === 'All') {
+            return pollinatorMatch;
+        } else {
+            const monthIndex = months.indexOf(currentMonth);
+            const monthMatch = d.cleaned_bloom_months.includes(monthIndex);
+            return pollinatorMatch && monthMatch;
+        }
+    });
 
-    // Calculate current counts
+    // Calculate current counts for fragrance visualization
     currentFilteredCounts = new Map();
     
     filteredData.forEach(d => {
@@ -515,18 +521,16 @@ function updateVisualizationForPollinator(pollinatorType) {
         }
     });
 
-    // Update the bars with smoother transitions
+    // Update the visualization with transitions
     const paths = svg.selectAll("path:not(.inner-structure)");
     
-    // First update the data binding
     paths.each(function(d) {
         if (d && d.note) {
-            d.prevCount = d.count || 0; // Store previous count
-            d.count = currentFilteredCounts.get(d.note)?.count || 0; // Set new count
+            d.prevCount = d.count || 0;
+            d.count = currentFilteredCounts.get(d.note)?.count || 0;
         }
     });
 
-    // Then apply the transition
     paths.transition()
         .duration(750)
         .attrTween("d", function(d) {
@@ -549,27 +553,39 @@ function updateVisualizationForPollinator(pollinatorType) {
             return count === 0 ? 0.2 : 1;
         });
 
-    // Update center text
+    // Update center text with filtered count
     svg.select(".count-text")
         .text(`count: ${filteredData.length}`);
 }
 
-
-// Update the spec sheet title when pollinator changes
-function updateSpecSheetTitle() {
-    const titleElement = document.querySelector('.spec-sheet-title');
-    if (!titleElement) return;
-
-    // Handle the "All" case differently
-    if (selectedPollinatorType === "All") {
-        titleElement.innerHTML = `All Orchids in <span class="month-name">${currentMonth}</span>`;
+// Update pollinator name independently
+function updatePollinatorTitle(pollinatorType) {
+    const pollinatorElement = document.querySelector('.pollinator-name');
+    const titleSuffix = document.querySelector('.title-suffix');
+    
+    if (!pollinatorElement || !titleSuffix) return;
+    
+    selectedPollinatorType = pollinatorType;
+    
+    if (pollinatorType === "All") {
+        pollinatorElement.textContent = "All";
+        titleSuffix.textContent = "Orchids in";
     } else {
-        titleElement.innerHTML = `<span class="pollinator-name">${selectedPollinatorType}</span> Pollinated Orchids in <span class="month-name">${currentMonth}</span>`;
+        pollinatorElement.textContent = pollinatorType;
+        titleSuffix.textContent = "Pollinated Orchids in";
     }
 }
 
-// month-scale.js
+// Update month independently
+function updateMonthTitle(month) {
+    const monthElement = document.querySelector('.month-name');
+    if (!monthElement) return;
+    
+    currentMonth = month;
+    monthElement.textContent = month === 'All' ? 'All Months' : month;
+}
 
+// month-scale.js
 const BAR_CONFIG = {
     containerWidth: 18, // Width in vw units
     minWidthPercent: 10, // Minimum width as percentage of containerWidth
@@ -589,9 +605,6 @@ function calculateBarWidth(count, totalOrchids) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let currentMonth = '';
-    
     const contentDiv = document.getElementById('content');
     const monthScale = document.getElementById('month-scale');
     const currentMonthIndicator = document.getElementById('current-month-indicator');
@@ -611,6 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Load and process the data
     d3.json('cleanedOrchidData.json').then(data => {
         const totalOrchids = data.length;
+        globalData = data; // Store data globally
 
         // Calculate counts for each month
         const monthCounts = months.map((month, idx) => {
@@ -621,61 +635,56 @@ document.addEventListener("DOMContentLoaded", function () {
             if (month === currentMonth) return;
             currentMonth = month;
         
-            const monthIndex = months.indexOf(month);
-            const count = monthCounts[monthIndex];
+            let count;
+            if (month === 'All') {
+                // For "All", show total count
+                count = totalOrchids;
+                currentMonthIndicator.style.width = calculateBarWidth(count, totalOrchids);
+            } else {
+                // For specific months, show month count
+                const monthIndex = months.indexOf(month) - 1; // Subtract 1 because 'All' shifts indices
+                count = monthCounts[monthIndex];
+                currentMonthIndicator.style.width = calculateBarWidth(count, totalOrchids);
+            }
         
             // Update count display
             orchidCountDisplay.textContent = count;
         
-            // Use new width calculation
-            currentMonthIndicator.style.width = calculateBarWidth(count, totalOrchids);
-        
-            // Update month in spec sheet title
-            document.querySelector('.month-name').textContent = month;
+            // Update month in title
+            updateMonthTitle(month);
+            
+            // Update visualization
+            updateVisualizationForPollinator(selectedPollinatorType);
         }
 
-        function updateLinePositions() {
-            const monthHeight = monthScale.clientHeight / 12;
-            const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2;
-            
-            document.querySelectorAll('.month-line').forEach((line, idx) => {
-                line.style.top = `${monthScaleTop + (idx * monthHeight) + (monthHeight / 2)}px`;
-                
-                // Use new width calculation for static lines
-                const count = monthCounts[idx];
-                line.style.width = calculateBarWidth(count, totalOrchids);
-            });
-        }
-        
         // Handle scroll
         contentDiv.addEventListener('scroll', () => {
             const scrollY = contentDiv.scrollTop;
             const viewportHeight = contentDiv.clientHeight;
             const totalHeight = contentDiv.scrollHeight - viewportHeight;
             
-            const monthIndex = Math.floor((scrollY / totalHeight) * 12);
-            const clampedMonthIndex = Math.max(0, Math.min(11, monthIndex));
-            const monthLabel = months[clampedMonthIndex];
+            // Add offset for "All" button
+            const scrollRatio = scrollY / totalHeight;
+            let monthIndex;
+            
+            if (scrollRatio < 0.05) { // First 5% of scroll shows "All"
+                monthIndex = 0;
+            } else {
+                monthIndex = Math.floor(((scrollRatio - 0.05) / 0.95) * 11) + 1;
+            }
+            
+            const clampedMonthIndex = Math.max(0, Math.min(12, monthIndex));
             
             // Update month indicator position
-            const monthHeight = monthScale.clientHeight / 12;
+            const monthHeight = monthScale.clientHeight / 13; // 13 for All + 12 months
             const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2;
             currentMonthIndicator.style.top = `${monthScaleTop + (clampedMonthIndex * monthHeight) + (monthHeight / 2)}px`;
             
             // Update current month
-            updateChart(monthLabel);
+            updateChart(months[clampedMonthIndex]);
         });
 
-        // Handle window resize
-        window.addEventListener('resize', updateLinePositions);
-
-        // Initialize
-        updateChart('Jan');
-        updateLinePositions();
-        
-        // Set initial positions
-        const monthHeight = monthScale.clientHeight / 12;
-        const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2;
-        currentMonthIndicator.style.top = `${monthScaleTop + (monthHeight / 2)}px`;
+        // Initialize with "All"
+        updateChart('All');
     });
 });
