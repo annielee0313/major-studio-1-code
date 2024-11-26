@@ -3,15 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orchid Fragrance</title>
+    <title>Blooming Orchidaceaes</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-  <div>Blooming Orchidaceaes</div>
+  <div id="title">Blooming Orchidaceaes
+    <svg id="info-icon" width="20" height="20" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <circle cx="12" cy="8" r="0.5"></circle>
+    </svg>
+  </div>
 
-  <script async src="main.js"></script>
+  <!-- Info Modal -->
+  <div id="infoModal" class="info-modal">  <!-- Changed from class="modal" -->
+    <div class="info-modal-content">
+      <h2>About This Project</h2>
+      <p>
+        This visualization uses <a href="https://www.si.edu/OpenAccess" target="_blank" class="info-link">Smithsonian Open Access</a> orchid data that includes fragrance and pollinator information. I cleaned the data to visualize the relationship between orchid fragrances and their pollinators, grouping similar fragrance notes into categories and mapping them to their respective pollinators.
+      </p>
+      <p>
+        Explore the visualization by selecting different pollinator types and clicking on fragrance bars to see how scent preferences vary among different pollinators. You can also click on the orchid images to learn more about each species.
+      </p>
+      <p>
+        ~ Annie Lee for MS1
+      </p>
+    </div>
+  </div>
+
+  <div id="subtitle">Explore the Smithsonian Orchids Collection</div>
+
+  <!-- Spec Sheet -->
+  <div class="spec-sheet">
+      <div class="spec-sheet-title">
+          <span class="pollinator-name">Moth</span> Pollinated Orchids in <span class="month-name">March</span>
+      </div>
+      
+      <!-- Boxes for measurements -->
+      <div class="measurement-box">
+          <p>number of flowers</p>
+          <div class="box-plot"></div>
+      </div>
+      
+      <div class="measurement-box">
+          <p>length of inflorescence<p>
+          <div class="box-plot"></div>
+      </div>
+      
+      <!-- Color palette -->
+      <div class="color-palette">
+          <p>colors</p>
+          <div class="color-squares"></div>
+      </div>
+      
+      <!-- Fragrance profile chart -->
+      <div id="app4"></div>
+  </div>
+
+  <div class="main-content">
+      <!-- Your visualization will go here -->
+      <div id="pollinator-buttons"></div>
+  </div>
+  
+  <div class="main-content">
+        <!-- Future bubble chart will go here -->
+  </div>
+
+  <div id="content">
+    <div class="scroll-content"></div>
+  </div>
+
+  <div class="month-scale-container">
+      <div id="month-scale"></div>
+      <div id="current-month-indicator">
+        <span id="orchid-count"></span>
+    </div>
+  </div>
+
+
+  <script type="module" async src="main.js"></script>
+  <script src="https://unpkg.com/d3-interpolate-path"></script>
 
 </body>
-
 </html>
