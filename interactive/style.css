@@ -10,6 +10,21 @@
     src: url('./fonts/SnellBT-Regular.otf') format('opentype');
 }
 
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #041604;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 html, body {
     overscroll-behavior: none;
     overflow: hidden;
@@ -20,7 +35,7 @@ html, body {
 
 
 body {
-    background-color: #0B1A0B;
+    background-color: #041604;
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     background-attachment: fixed;
     display: flex;
@@ -33,10 +48,10 @@ body {
 
 #title {
     z-index: 2;
-    top: 20px;
-    left: 36vw;
+    top: 3%;
+    left: 30vw;
     position: fixed;
-    font-size: 3.5rem;
+    font-size: 4rem;
     color:#BBFFB0;
     font-family: 'SnellBT', sans-serif;
 }
@@ -103,8 +118,8 @@ body {
 }
 
 #subtitle {
-    top: 100px;
-    left: 36vw;
+    top: 13%;
+    left: 30vw;
     position: fixed;
     color:white;
     font: 1rem 'PPFranktionMono', sans-serif;
@@ -113,11 +128,11 @@ body {
 .spec-sheet {
     position: fixed;
     left: 1.5vw;
-    top: 3vh;
-    width: 28vw;
-    height: 94vh;
-    background-color: #070807;
-    border: 1px solid white;
+    top: 15vh;
+    width: 18vw;
+    height: 70vh;
+    background-color: rgba(7, 8, 7, 0.5);
+    /* border: 1px solid white; */
     padding: 0;
     box-sizing: border-box;
     overflow-y: auto;
@@ -139,20 +154,66 @@ body {
     text-align: center;
 }
 
+.spec-sheet p {
+    color: white;
+    text-align: center;
+    margin: 0;  /* Optional: removes default paragraph margins */
+    font-family: 'PPFranktionMono', monospace;
+    font-size: 0.8rem;
+}
+
+.measurement-box {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+#app1, #app2 {
+    width: 100%;
+    height: 60px;
+    margin-top: 0.5rem;
+}
+
 .pollinator-name,
 .month-name {
     color: #BBFFB0;  /* Using the green from your title */
     font-weight: bold;
 }
 
-
+/* Bubble Chart */
 .main-content {
-    margin-left: 33.33vw;
-    width: calc(66.67vw);
-    height: 100vh;
-    position: relative;
+    position: fixed;
+    top: 15vh; /* Add some top spacing */
+    left: 16vw;
+    width: calc(80vw); /* Account for month scale */
+    height: calc(73vh); /* Reduce height to leave space for buttons */
+    background-color: rgba(7, 8, 7, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
 }
 
+#app5 {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(7, 8, 7, 0.2);
+}
+
+.genus-link {
+    stroke: white;
+    stroke-width: 0.5;
+    opacity: 0.3;
+}
+
+.orchid-tooltip {
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Fragrance Circular Bar */
 #app4 {
     width: 100%;
     height: 100%;
@@ -185,9 +246,7 @@ body {
 /* Pollinator Buttons Container */
 #pollinator-buttons {
     position: fixed;
-    bottom: 5%;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 3%;
     display: flex;
     justify-content: center;
     z-index: 102;
@@ -205,7 +264,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'PPFranktionMono', monospace;
-    font-size: 0.8rem;
+    font-size: 1rem;
     border-radius: 0;
     margin: 0;
     position: relative;
@@ -341,19 +400,21 @@ body {
     width: 20vw;
     height: 100vh;
     z-index: 100;
+    pointer-events: none;
 }
 
 #content {
     position: fixed;
     top: 0;
     left: 33.33vw;
-    width: calc(66.67vw - 20vw);
+    width: calc(66.67vw);
     height: 100vh;
     overflow-y: scroll;
     pointer-events: auto;
     background: transparent;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    z-index: 1;
 }
 
 #content::-webkit-scrollbar {
@@ -361,7 +422,8 @@ body {
 }
 
 .scroll-content {
-    height: 1000vh;
+    height: 1500vh;
+    pointer-events: none;
 }
 
 /* Styled month scale */
@@ -372,7 +434,7 @@ body {
     right: 20px;
     height: 60%;
     width: 52px;
-    background: #0B1A0B;
+    background: #041604;
     font-size: 1rem;
     font-family: 'PPFranktionMono', monospace;
     display: flex;

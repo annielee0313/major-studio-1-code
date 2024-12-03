@@ -10,6 +10,15 @@
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
+  <div id="loading-screen" class="fixed inset-0 z-50 bg-[#041604] flex flex-col items-center justify-center">
+    <h1 class="text-[#BBFFB0] text-4xl font-snell mb-8">Blooming Orchidaceaes</h1>
+    <div class="loading-spinner w-16 h-16 relative">
+        <div class="absolute w-16 h-16 border-4 border-[#BBFFB0] rounded-full animate-ping opacity-75"></div>
+        <div class="absolute w-16 h-16 border-4 border-[#BBFFB0] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    <p class="text-white font-mono mt-4 text-sm">Loading orchids...</p>
+  </div>
+
   <div id="title">Blooming Orchidaceaes
     <svg id="info-icon" width="20" height="20" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="10"></circle>
@@ -19,7 +28,7 @@
   </div>
 
   <!-- Info Modal -->
-  <div id="infoModal" class="info-modal">  <!-- Changed from class="modal" -->
+  <div id="infoModal" class="info-modal"> 
     <div class="info-modal-content">
       <h2>About This Project</h2>
       <p>
@@ -48,32 +57,31 @@
       
       <!-- Boxes for measurements -->
       <div class="measurement-box">
-          <p>number of flowers</p>
-          <div class="box-plot"></div>
+          <p>Number of Flowers</p>
+          <div id="app1"></div>
       </div>
       
       <div class="measurement-box">
-          <p>length of inflorescence<p>
-          <div class="box-plot"></div>
+          <p>Length of Inflorescence<p>
+          <div id="app2"></div>
       </div>
       
       <!-- Color palette -->
       <div class="color-palette">
-          <p>colors</p>
-          <div class="color-squares"></div>
+          <p>Colors</p>
+          <div id="app3"></div>
       </div>
       
       <!-- Fragrance profile chart -->
-      <div id="app4"></div>
+      <div class="color-palette">
+        <p>Fragrances</p>
+        <div id="app4"></div>
+      </div>
   </div>
 
   <div class="main-content">
-      <!-- Your visualization will go here -->
+      <div id="app5"></div>
       <div id="pollinator-buttons"></div>
-  </div>
-  
-  <div class="main-content">
-        <!-- Future bubble chart will go here -->
   </div>
 
   <div id="content">
@@ -81,15 +89,17 @@
   </div>
 
   <div class="month-scale-container">
-      <div id="month-scale"></div>
-      <div id="current-month-indicator">
+    <div id="month-scale"></div>
+    <div id="current-month-indicator">
         <span id="orchid-count"></span>
     </div>
   </div>
 
-
-  <script type="module" async src="main.js"></script>
   <script src="https://unpkg.com/d3-interpolate-path"></script>
+  <script src="libraries/vibrant.js"></script>
+  <script src="loading.js"></script>
+  <script type="module" src="boxplot.js"></script>
+  <script type="module" src="main.js"></script>
 
 </body>
 </html>
