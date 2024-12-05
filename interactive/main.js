@@ -263,7 +263,7 @@ currentFilteredCounts = new Map(
             .attr("dy", "12em")
             .style("font-family", "PPFranktionMono")
             .style("font-size", "0.8rem")
-            .style("fill", "#BBFFB0")
+            .style("fill", "#FFFFFF")
             .text(`Count: ${data.length}`);
     }
 });
@@ -945,19 +945,56 @@ function displayColorSwatches(colors) {
 
 // Bubble Chart
 function createBubbleChart() {
+    // Create loading overlay
+    const loadingOverlay = d3.select('#app5')
+        .append('div')
+        .attr('class', 'loading-overlay')
+        .append('div')
+        .attr('class', 'loading-text')
+        .text('Loading orchids...');
+
     d3.select('#app5').selectAll('svg').remove();
 
     // Set up dimensions
     const width = document.querySelector('#app5').clientWidth;
     const height = document.querySelector('#app5').clientHeight;
     
-    // Create SVG
     const svg = d3.select('#app5')
         .append('svg')
         .attr('width', width)
         .attr('height', height)
+        .style('opacity', 0) // Hide SVG initially
         .append('g')
         .attr('transform', `translate(${width/2}, ${height/2})`);
+
+    let loadedImages = 0;
+    const totalImages = globalData.length;
+
+    // Function to track image loading
+    function onImageLoad() {
+        loadedImages++;
+        loadingOverlay.text(`Loading orchids... ${Math.round((loadedImages/totalImages) * 100)}%`);
+        
+        if (loadedImages === totalImages) {
+            // All images loaded, start the visualization
+            d3.select('#app5').select('svg')
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+                
+            loadingOverlay
+                .transition()
+                .duration(500)
+                .style('opacity', 0)
+                .end()
+                .then(() => {
+                    d3.select('.loading-overlay').remove();
+                });
+
+            // Start simulation with a bit more energy
+            simulation.alpha(1).restart();
+        }
+    }
 
     // Create image patterns for nodes
     function createImagePattern(d) {
@@ -969,6 +1006,11 @@ function createBubbleChart() {
             .attr('width', 1)
             .attr('height', 1)
             .attr('patternContentUnits', 'objectBoundingBox');
+
+        // Create image and track loading
+        const img = new Image();
+        img.onload = onImageLoad;
+        img.src = `${d.image_url}&max_w=200`;
 
         pattern.append('image')
             .attr('xlink:href', `${d.image_url}&max_w=200`)
@@ -1048,7 +1090,7 @@ function createBubbleChart() {
             .raise()
             .transition()
             .duration(200)
-            .attr('r', 70);
+            .attr('r', 80);
     
         // Use the global tooltip instead of creating a new one
         tooltip.transition()
