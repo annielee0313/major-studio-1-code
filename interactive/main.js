@@ -16,6 +16,30 @@ const swatchHeight = swatchSize + (2 * swatchPadding);
 
 let swatchSvg; 
 
+
+//global tooltip
+const tooltip = getOrCreateTooltip();
+
+function getOrCreateTooltip() {
+        let tooltip = d3.select("body").select(".tooltip");
+        if (tooltip.empty()) {
+            tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0)
+                .style("position", "absolute")
+                .style("pointer-events", "none")
+                .style("background", "rgba(7,8,7,0.9)")
+                .style("padding", "8px")
+                .style("border-radius", "4px")
+                .style("color", "white")
+                .style("font-family", "PPFranktionMono")
+                .style("font-size", "12px")
+                .style("z-index", "9999");
+        }
+        return tooltip;
+}
+
 // Add months array at the top level
 const months = ['All', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -183,12 +207,6 @@ d3.json(datasetURL).then(data => {
       d.image_url = `${d.image_url}&max_w=200`;
     }
   });
-  
-  // Split the data into two halves
-  const midIndex = Math.ceil(data.length / 2);
-  const firstHalf = data.slice(0, midIndex);
-  const secondHalf = data.slice(midIndex);
-
 
   // Create a map to hold counts of unique fragrance notes across all entries, grouped by type
   const fragranceNoteCounts = new Map();
@@ -244,9 +262,9 @@ currentFilteredCounts = new Map(
             .attr("text-anchor", "middle")
             .attr("dy", "12em")
             .style("font-family", "PPFranktionMono")
-            .style("font-size", "0.7rem")
-            .style("fill", "white")
-            .text(`count: ${data.length}`);
+            .style("font-size", "0.8rem")
+            .style("fill", "#BBFFB0")
+            .text(`Count: ${data.length}`);
     }
 });
 
@@ -287,11 +305,6 @@ function brightenColor(color, factor) {
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
-// Create a tooltip element
-const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip") // Add a class for styling
-    .style("opacity", 0); // Initially hidden
-
 
 // Create the bars
 const bars = svg.append("g")
@@ -303,21 +316,25 @@ const bars = svg.append("g")
 .attr("fill", d => colorMapping[d.fragranceType])
 .attr("d", arcGenerator)
 .style("cursor", "pointer")
+.on("click", function(event, d) {
+    showFragranceModal(d);
+})
 .on("mouseover", function(event, d) {
-        // Brighten bar
-        const bar = d3.select(this);
-        const currentColor = colorMapping[d.fragranceType];
-        bar.attr("fill", brightenColor(currentColor, 1.5));
+    // Brighten bar
+    const bar = d3.select(this);
+    const currentColor = colorMapping[d.fragranceType];
+    bar.attr("fill", brightenColor(currentColor, 1.5));
+    
+    // Show tooltip with z-index to ensure it's on top
+    tooltip.transition()
+        .duration(200)
+        .style("opacity", 0.9)
+        .style("z-index", 9999);
         
-        // Show tooltip
-        tooltip.transition()
-            .duration(200)
-            .style("opacity", 0.9);
-            
-        const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-        tooltip.html(`${d.note}: ${currentCount}`)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px");
+    const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
+    tooltip.html(`${toTitleCase(d.fragranceType)}: ${toTitleCase(d.note)}: ${currentCount}`)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px");
 
         // Highlight only visible matching bubbles
         d3.select('#app5')
@@ -328,7 +345,7 @@ const bars = svg.append("g")
                 d3.select(this).style('opacity') !== "0.2"  // Check if bubble is visible
             )
             .style("stroke", colorMapping[d.fragranceType])
-            .style("stroke-width", "2px");
+            .style("stroke-width", "1.5px");
 })
 
 .on("mouseout", function(event, d) {
@@ -376,6 +393,113 @@ const bars = svg.append("g")
     updateColorSwatches(); // Initial call
 });
 
+// convert string to title case
+function toTitleCase(str) {
+    return str.toLowerCase().split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+function showFragranceModal(fragranceData) {
+    const modal = document.getElementById('fragranceModal');
+    const modalTitle = modal.querySelector('.fragrance-modal-title');
+    const modalGrid = modal.querySelector('.fragrance-grid');
+    
+    // Get matching orchids
+    const matchingOrchids = globalData.filter(orchid => {
+        const pollinatorMatch = selectedPollinatorType === "All" 
+            ? true 
+            : orchid.pollinator_types.split(',').map(p => p.trim()).includes(selectedPollinatorType);
+        
+        const monthMatch = currentMonth === 'All' 
+            ? true 
+            : orchid.cleaned_bloom_months.includes(months.indexOf(currentMonth));
+            
+        const fragranceMatch = orchid.fragrance_notes && 
+            orchid.fragrance_notes.toLowerCase().includes(fragranceData.note.toLowerCase());
+            
+        return pollinatorMatch && monthMatch && fragranceMatch;
+    });
+
+    
+    // Create title with highlighted elements
+    modalTitle.innerHTML = `
+    ${matchingOrchids.length} <span class="highlight">${selectedPollinatorType}</span> 
+    Pollinated Orchids in 
+    <span class="highlight">${currentMonth}</span> with 
+    <span style="color: ${colorMapping[fragranceData.fragranceType]}; font-weight: bold;">${toTitleCase(fragranceData.note)}</span> Fragrance
+    `;
+
+    // Clear and populate grid
+    modalGrid.innerHTML = '';
+    matchingOrchids.forEach(orchid => {
+        if (orchid.image_url) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            
+            const img = document.createElement('img');
+            img.src = `${orchid.image_url}&max_w=100`; // Small image size for grid
+            img.alt = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
+            
+            // Add tooltip on hover
+            gridItem.addEventListener('mouseover', (event) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 0.9);
+                tooltip.html(`${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
+            });
+            
+            gridItem.addEventListener('mouseout', () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+            
+            // Open orchid modal on click
+            gridItem.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent fragrance modal from closing
+                showOrchidModal(orchid);
+            });
+            
+            gridItem.appendChild(img);
+            modalGrid.appendChild(gridItem);
+        }
+    });
+
+    // Show modal
+    modal.style.display = "block";
+
+    // Close modal when clicking outside
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+}
+
+// Helper function to show orchid modal (reuse existing orchid modal)
+function showOrchidModal(orchid) {
+    const modal = document.getElementById('orchidModal');
+    const modalImg = modal.querySelector('.modal-image img');
+    const modalTitle = modal.querySelector('.modal-title');
+    const modalCommonname = modal.querySelector('#commonname');
+    const modalPollination = modal.querySelector('#pollination');
+    const modalFragrance = modal.querySelector('#fragrance');
+    const modalBloom = modal.querySelector('#bloom');
+    const modalLink = modal.querySelector('.modal-link');
+
+    modalImg.src = orchid.image_url;
+    modalTitle.textContent = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
+    modalCommonname.textContent = `Common Name: ${orchid.common_name || 'Unknown'}`;
+    modalPollination.textContent = `Pollinator: ${orchid.pollination_syndrome || 'Unknown'}`;
+    modalFragrance.textContent = `Fragrance: ${orchid.fragrance || 'Unknown'}`;
+    modalBloom.textContent = `Bloom Characteristics: ${orchid.bloom_characteristics || 'Unknown'}`;
+    modalLink.href = orchid.guid_link;
+
+    modal.style.display = "block";
+}
 
 // Create pollinator buttons
 function createPollinatorButtons() {
@@ -431,6 +555,8 @@ function calculateFragranceCounts(pollinatorType) {
 }
 
 function updateVisualizationForPollinator(pollinatorType) {
+
+    const tooltip = getOrCreateTooltip();
 
     selectedFragranceNotes = []; 
 
@@ -489,6 +615,7 @@ function updateVisualizationForPollinator(pollinatorType) {
         }
     });
 
+    // Only handle the transitions and opacity updates here
     paths.transition()
         .duration(750)
         .attrTween("d", function(d) {
@@ -515,15 +642,14 @@ function updateVisualizationForPollinator(pollinatorType) {
     svg.select(".count-text")
         .text(`count: ${filteredData.length}`);
 
-        //bubble chart
-        if (window.updateBubbleVisualization) {
-            window.updateBubbleVisualization();
-        }
+    // Update other visualizations
+    if (window.updateBubbleVisualization) {
+        window.updateBubbleVisualization();
+    }
 
-        //update box plot
-        if (window.updateBoxPlots) {
-            window.updateBoxPlots();
-        }
+    if (window.updateBoxPlots) {
+        window.updateBoxPlots();
+    }
 }
 
 // Update pollinator name independently
@@ -916,7 +1042,6 @@ function createBubbleChart() {
 
     // Add hover effects (keep existing hover code)
     nodes.on('mouseover', function(event, d) {
-        // Only show tooltip if node is visible
         if (d3.select(this).style('opacity') < 1) return;
 
         d3.select(this)
@@ -924,20 +1049,22 @@ function createBubbleChart() {
             .transition()
             .duration(200)
             .attr('r', 70);
-
-        d3.select('body')
-            .append('div')
-            .attr('class', 'tooltip')
-            .style('position', 'absolute')
-            .style('left', (event.pageX + 10) + 'px')
-            .style('top', (event.pageY - 10) + 'px')
-            .html(`
-                <div style="font-family: PPFranktionMono; background: rgba(7,8,7,0.9); 
-                           padding: 4px; border-radius: 5px; color: white;">
-                    ${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}<br>
-                    ${d.fragrance || 'No fragrance notes'}
-                </div>
-            `);
+    
+        // Use the global tooltip instead of creating a new one
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9)
+            .style("z-index", 1000);
+            
+        tooltip.html(`
+            <div style="font-family: PPFranktionMono; background: rgba(7,8,7,0.9); 
+                       padding: 4px; border-radius: 5px; color: white;">
+                ${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}<br>
+                ${d.fragrance || 'No fragrance notes'}
+            </div>
+        `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
     })
     .on('mouseout', function() {
         d3.select(this)
@@ -945,7 +1072,9 @@ function createBubbleChart() {
             .duration(200)
             .attr('r', 12);
         
-        d3.selectAll('.tooltip').remove();
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
     });
 
     // Add click event to close modal when clicking outside
@@ -1047,11 +1176,118 @@ function processNumericValue(value) {
     return isNaN(num) ? null : num;
 }
 
+/* flower count and inflorescence modals */
+function showFlowerCountModal(minFlowers, maxFlowers) {
+    const modal = document.getElementById('flowerCountModal');
+    const modalTitle = modal.querySelector('.fragrance-modal-title');
+    const modalGrid = modal.querySelector('.fragrance-grid');
+    
+    // Get matching orchids
+    const matchingOrchids = globalData.filter(orchid => {
+        const pollinatorMatch = selectedPollinatorType === "All" 
+            ? true 
+            : orchid.pollinator_types.split(',').map(p => p.trim()).includes(selectedPollinatorType);
+        
+        const monthMatch = currentMonth === 'All' 
+            ? true 
+            : orchid.cleaned_bloom_months.includes(months.indexOf(currentMonth));
+            
+        const flowerCount = processNumericValue(orchid.flower_count);
+        const flowerMatch = flowerCount >= minFlowers && flowerCount <= maxFlowers;
+            
+        return pollinatorMatch && monthMatch && flowerMatch;
+    });
+
+    // Create title
+    modalTitle.innerHTML = `
+        <span class="highlight">${matchingOrchids.length} ${selectedPollinatorType}</span> 
+        Pollinated Orchids in 
+        <span class="highlight">${currentMonth}</span> with 
+        <span class="highlight">${Math.round(minFlowers)}-${Math.round(maxFlowers)}</span> Flowers
+    `;
+
+    populateModalGrid(modalGrid, matchingOrchids);
+    modal.style.display = "block";
+}
+
+function showInflorescenceModal(minLength, maxLength) {
+    const modal = document.getElementById('inflorescenceModal');
+    const modalTitle = modal.querySelector('.fragrance-modal-title');
+    const modalGrid = modal.querySelector('.fragrance-grid');
+    
+    // Get matching orchids
+    const matchingOrchids = globalData.filter(orchid => {
+        const pollinatorMatch = selectedPollinatorType === "All" 
+            ? true 
+            : orchid.pollinator_types.split(',').map(p => p.trim()).includes(selectedPollinatorType);
+        
+        const monthMatch = currentMonth === 'All' 
+            ? true 
+            : orchid.cleaned_bloom_months.includes(months.indexOf(currentMonth));
+            
+        const length = processNumericValue(orchid.inflorescence_length?.replace('"', ''));
+        const lengthMatch = length >= minLength && length <= maxLength;
+            
+        return pollinatorMatch && monthMatch && lengthMatch;
+    });
+
+    // Create title
+    modalTitle.innerHTML = `
+        <span class="highlight">${matchingOrchids.length} ${selectedPollinatorType}</span> 
+        Pollinated Orchids in 
+        <span class="highlight">${currentMonth}</span> with 
+        <span class="highlight">${Math.round(minLength)}-${Math.round(maxLength)}"</span> Inflorescence
+    `;
+
+    populateModalGrid(modalGrid, matchingOrchids);
+    modal.style.display = "block";
+}
+
+// Helper function to populate modal grid
+function populateModalGrid(modalGrid, orchids) {
+    modalGrid.innerHTML = '';
+    orchids.forEach(orchid => {
+        if (orchid.image_url) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            
+            const img = document.createElement('img');
+            img.src = `${orchid.image_url}&max_w=100`;
+            img.alt = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
+            
+            // Add tooltip on hover
+            gridItem.addEventListener('mouseover', (event) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 0.9);
+                tooltip.html(`${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
+            });
+            
+            gridItem.addEventListener('mouseout', () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+            
+            // Open orchid modal on click
+            gridItem.addEventListener('click', (event) => {
+                event.stopPropagation();
+                showOrchidModal(orchid);
+            });
+            
+            gridItem.appendChild(img);
+            modalGrid.appendChild(gridItem);
+        }
+    });
+}
+
 // Create the flower count box plot
 function createFlowerCountPlot() {
     
     // Clear existing content
-    d3.select("#app1").selectAll("*").remove();
+    d3.select("#app1").selectAll("svg").remove();
     
     // Set dimensions
     const width =220;
@@ -1093,10 +1329,7 @@ function createFlowerCountPlot() {
     const xScale = d3.scaleLinear()
         .domain([0, max])
         .range([margin.left, width - margin.right]);
-    
-        const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
+
     
     const svg = d3.select("#app1")
         .append("svg")
@@ -1134,18 +1367,17 @@ function createFlowerCountPlot() {
         .attr("opacity", 0.5)
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
-            tooltip.html(`One usually has ${q1.toFixed(0)}-${q3.toFixed(0)} flowers`)
+            tooltip.html(`Orchids usually have ${q1.toFixed(0)}-${q3.toFixed(0)} flowers`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 10) + "px");
             
             highlightMatchingBubbles(q1, q3);
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             resetBubbles();
@@ -1161,7 +1393,6 @@ function createFlowerCountPlot() {
         .attr("stroke-width", 2)
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1172,7 +1403,7 @@ function createFlowerCountPlot() {
             highlightMatchingBubbles(median - 0.1, median + 0.1);
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             resetBubbles();
@@ -1187,7 +1418,6 @@ function createFlowerCountPlot() {
         .attr("stroke", "#BBFFB0")
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1198,7 +1428,7 @@ function createFlowerCountPlot() {
             highlightMatchingBubbles(min - 0.1, min + 0.1);
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             resetBubbles();
@@ -1213,7 +1443,6 @@ function createFlowerCountPlot() {
         .attr("stroke", "#BBFFB0")
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1224,12 +1453,24 @@ function createFlowerCountPlot() {
             highlightMatchingBubbles(max - 0.1, max + 0.1);
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             resetBubbles();
         });
 
+        // Add click handlers for box and lines
+    svg.select("rect") // The IQR box
+    .style("cursor", "pointer")
+    .on("click", () => showFlowerCountModal(q1, q3));
+
+    svg.selectAll("line") // The min, max, and median lines
+        .style("cursor", "pointer")
+        .on("click", function() {
+            const value = parseFloat(d3.select(this).attr("x1"));
+            const xValue = xScale.invert(value);
+            showFlowerCountModal(xValue - 0.1, xValue + 0.1);
+        });
     
     // Add axis
     const xAxis = d3.axisBottom(xScale)
@@ -1254,7 +1495,7 @@ function createFlowerCountPlot() {
 // Create the inflorescence length box plot
 function createInflorescencePlot() {
     // Clear existing content
-    d3.select("#app2").selectAll("*").remove();
+    d3.select("#app2").selectAll("svg").remove();
     
     // Set dimensions - same as flower count plot
     const width = 220;
@@ -1302,10 +1543,6 @@ function createInflorescencePlot() {
         .domain([0, max])
         .range([margin.left, width - margin.right]);
     
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-    
     const svg = d3.select("#app2")
         .append("svg")
         .attr("width", width)
@@ -1322,7 +1559,6 @@ function createInflorescencePlot() {
         .attr("opacity", 0.5)
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1342,7 +1578,7 @@ function createInflorescencePlot() {
                 .style("stroke-width", "1.3px");
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             // Reset bubbles
@@ -1362,7 +1598,6 @@ function createInflorescencePlot() {
         .attr("stroke-width", 2)
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1382,7 +1617,7 @@ function createInflorescencePlot() {
                 .style("stroke-width", "1.3px");
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             // Reset bubbles
@@ -1401,7 +1636,6 @@ function createInflorescencePlot() {
         .attr("stroke", "#BBFFB0")
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1421,7 +1655,7 @@ function createInflorescencePlot() {
                 .style("stroke-width", "1.3px");
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             // Reset bubbles
@@ -1440,7 +1674,6 @@ function createInflorescencePlot() {
         .attr("stroke", "#BBFFB0")
         .style("cursor", "pointer")
         .on("mouseover", function(event) {
-            const tooltip = d3.select(".tooltip");
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 0.9);
@@ -1460,7 +1693,7 @@ function createInflorescencePlot() {
                 .style("stroke-width", "1.3px");
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").transition()
+            tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
             // Reset bubbles
@@ -1469,6 +1702,18 @@ function createInflorescencePlot() {
                 .style("stroke", "#333")
                 .style("stroke-width", "1px");
         });
+
+        svg.select("rect")
+        .style("cursor", "pointer")
+        .on("click", () => showInflorescenceModal(q1, q3));
+
+        svg.selectAll("line")
+            .style("cursor", "pointer")
+            .on("click", function() {
+                const value = parseFloat(d3.select(this).attr("x1"));
+                const xValue = xScale.invert(value);
+                showInflorescenceModal(xValue - 0.1, xValue + 0.1);
+            });
     
     // Add axis
     const xAxis = d3.axisBottom(xScale)
@@ -1500,4 +1745,21 @@ window.updateBoxPlots = function() {
     createInflorescencePlot();
 };
 
+// Add modal click-outside-to-close handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const flowerCountModal = document.getElementById('flowerCountModal');
+    const inflorescenceModal = document.getElementById('inflorescenceModal');
 
+    [flowerCountModal, inflorescenceModal].forEach(modal => {
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        // Update this selector to match your HTML
+        modal.querySelector('.fragrance-modal-content').onclick = function(event) {
+            event.stopPropagation();
+        };
+    });
+});
