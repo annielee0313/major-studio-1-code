@@ -157,7 +157,7 @@
     "cleaned_peak_months": [
       "Unknown"
     ],
-    "inflorescence_length": "",
+    "inflorescence_length": null,
     "flower_count": "20-30",
     "flower_size": null
   },
@@ -2249,7 +2249,7 @@
     "cleaned_peak_months": [
       "Unknown"
     ],
-    "inflorescence_length": "",
+    "inflorescence_length": null,
     "flower_count": "20-30",
     "flower_size": ".75\""
   },
@@ -6557,7 +6557,7 @@
     "cleaned_peak_months": [
       "Unknown"
     ],
-    "inflorescence_length": "",
+    "inflorescence_length": null,
     "flower_count": "1-3",
     "flower_size": null
   },

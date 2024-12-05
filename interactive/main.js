@@ -242,9 +242,9 @@ currentFilteredCounts = new Map(
         svg.append("text")
             .attr("class", "count-text")
             .attr("text-anchor", "middle")
-            .attr("dy", "0.35em")
+            .attr("dy", "12em")
             .style("font-family", "PPFranktionMono")
-            .style("font-size", "14px")
+            .style("font-size", "0.7rem")
             .style("fill", "white")
             .text(`count: ${data.length}`);
     }
@@ -328,7 +328,7 @@ const bars = svg.append("g")
                 d3.select(this).style('opacity') !== "0.2"  // Check if bubble is visible
             )
             .style("stroke", colorMapping[d.fragranceType])
-            .style("stroke-width", "3px");
+            .style("stroke-width", "2px");
 })
 
 .on("mouseout", function(event, d) {
@@ -345,7 +345,7 @@ const bars = svg.append("g")
         d3.select('#app5')
             .selectAll('circle')
             .style("stroke", "#333")
-            .style("stroke-width", "1px");
+            .style("stroke-width", "0px");
 });
     
 
@@ -372,48 +372,6 @@ const bars = svg.append("g")
             .endAngle(d => x(d.note) + x.bandwidth())
         )
         .style("pointer-events", "none");
-
-    //  // ADD LABELS HERE - after bars creation
-    //  const labelRadius = innerRadius - 13;
-    //  const labelGroup = svg.append("g")
-    //      .attr("class", "label-group");
- 
-    //  const labelSettings = [
-    //      { type: "floral", angle: -45 },
-    //      { type: "fruity", angle: -15 },
-    //      { type: "sweet", angle: 172},
-    //      { type: "pleasant", angle: 155 },
-    //      { type: "unpleasant", angle: 130 },
-    //      { type: "earthy", angle: 105 },
-    //      { type: "spicy", angle: 75 }
-    //  ];
- 
-    //  labelSettings.forEach(({type, angle}, i) => {
-    //      const pathId = `labelPath${i}`;
-    //      const angleRad = (angle * Math.PI) / 180;
-         
-    //      const path = labelGroup.append("path")
-    //          .attr("id", pathId)
-    //          .attr("d", d3.arc()
-    //              .innerRadius(labelRadius)
-    //              .outerRadius(labelRadius)
-    //              .startAngle(0)
-    //              .endAngle(2 * Math.PI)
-    //          )
-    //          .style("fill", "none")
-    //          .style("stroke", "none");
- 
-    //      labelGroup.append("text")
-    //          .append("textPath")
-    //          .attr("href", `#${pathId}`)
-    //          .attr("startOffset", `${((angle + 180) / 360) * 100}%`)
-    //          .style("text-anchor", "middle")
-    //          .style("alignment-baseline", "middle")
-    //          .style("fill", colorMapping[type])
-    //          .style("font-family", "PPFranktionMono")
-    //          .style("font-size", "0.8rem")
-    //          .text(type);
-    //  });
 
     updateColorSwatches(); // Initial call
 });
@@ -620,16 +578,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentMonthIndicator = document.getElementById('current-month-indicator');
     const orchidCountDisplay = document.getElementById('orchid-count');
     
-    // Create month scale
+    // Create month scale (just the labels)
     months.forEach(month => {
         const monthLabel = document.createElement('div');
         monthLabel.textContent = month;
         monthScale.appendChild(monthLabel);
-
-        const lineContainer = document.createElement('div');
-        lineContainer.className = 'month-line';
-        document.querySelector('.month-scale-container').appendChild(lineContainer);
     });
+
+    // Set initial position and width for the current month indicator at "All"
+    const monthHeight = monthScale.clientHeight / 13;
+    const monthScaleTop = window.innerHeight / 2 - monthScale.clientHeight / 2;
+    currentMonthIndicator.style.top = `${monthScaleTop + (monthHeight / 2)}px`;
+    currentMonthIndicator.style.width = '18vw'; 
 
     // Load and process the data
     d3.json('cleanedOrchidData.json').then(data => {
@@ -659,7 +619,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         
             // Update count display
-            orchidCountDisplay.textContent = count;
+            // orchidCountDisplay.textContent = count;
         
             // Update month in title
             updateMonthTitle(month);
@@ -735,7 +695,7 @@ function updateColorSwatches() {
         .attr("dominant-baseline", "middle")
         .style("fill", "white")
         .style("font-family", "PPFranktionMono")
-        .style("font-size", "0.8rem")
+        .style("font-size", "0.6rem")
         .text("analyzing colors...");
 
     let allColors = [];
@@ -838,12 +798,10 @@ function displayColorSwatches(colors) {
     // Take first 6 distinct colors
     const uniqueColors = distinctColors.slice(0, 6);
 
-
-    // Rest of your display code...
     swatchSvg.selectAll("*").remove();
 
     const totalWidth = uniqueColors.length * (swatchSize + swatchPadding);
-    const startX = (swatchWidth - totalWidth) / 2;
+    const startX = 0;
 
     const swatches = swatchSvg.selectAll("rect")
         .data(uniqueColors)
@@ -855,11 +813,8 @@ function displayColorSwatches(colors) {
     swatches.append("rect")
         .attr("width", swatchSize)
         .attr("height", swatchSize)
-        .attr("rx", 4)
+        .attr("rx", 2)
         .style("fill", d => d)
-        .style("stroke", "rgba(255,255,255,0.2)")
-        .style("stroke-width", 1)
-        .style("cursor", "pointer")
 }
 
 // Bubble Chart
@@ -910,7 +865,7 @@ function createBubbleChart() {
                 genus, 
                 {
                     x: Math.cos(angle) * width * 0.25,  // Wider horizontally
-                    y: Math.sin(angle) * height * 0.12  // Less vertically
+                    y: Math.sin(angle) * height * 0.05  // Less vertically
                 }
             ];
         })
@@ -921,10 +876,9 @@ function createBubbleChart() {
         .data(globalData)
         .enter()
         .append('circle')
-        .attr('r', 20)
+        .attr('r', 12)
         .attr('fill', d => createImagePattern(d))
-        .attr('stroke', '#333')
-        .attr('stroke-width', 1);
+        .style("cursor", "pointer"); // Add cursor pointer
 
     // Set initial positions near genus centers
     globalData.forEach(d => {
@@ -935,7 +889,32 @@ function createBubbleChart() {
         }
     });
 
-    // Add hover effects
+    // Add click event for modal
+    nodes.on('click', function(event, d) {
+        const modal = document.getElementById('orchidModal');
+        const modalImg = modal.querySelector('.modal-image img');
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalCommonname = modal.querySelector('#commonname');
+        const modalPollination = modal.querySelector('#pollination');
+        const modalFragrance = modal.querySelector('#fragrance');
+        const modalBloom = modal.querySelector('#bloom');
+        const modalLink = modal.querySelector('.modal-link');
+
+        // Set content
+        modalImg.src = d.image_url;
+        modalTitle.textContent = `${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}`;
+        modalCommonname.textContent = `Common Name: ${d.common_name || 'Unknown'}`;
+        modalPollination.textContent = `Pollinator: ${d.pollination_syndrome || 'Unknown'}`;
+        modalFragrance.textContent = `Fragrance: ${d.fragrance || 'Unknown'}`;
+        modalBloom.textContent = `Bloom Characteristics: ${d.bloom_characteristics || 'Unknown'}`;
+        modalLink.href = d.guid_link;
+
+        // Show modal
+        modal.style.display = "block";
+        event.stopPropagation(); // Prevent event from bubbling up
+    });
+
+    // Add hover effects (keep existing hover code)
     nodes.on('mouseover', function(event, d) {
         // Only show tooltip if node is visible
         if (d3.select(this).style('opacity') < 1) return;
@@ -944,7 +923,7 @@ function createBubbleChart() {
             .raise()
             .transition()
             .duration(200)
-            .attr('r', 100);
+            .attr('r', 70);
 
         d3.select('body')
             .append('div')
@@ -954,9 +933,9 @@ function createBubbleChart() {
             .style('top', (event.pageY - 10) + 'px')
             .html(`
                 <div style="font-family: PPFranktionMono; background: rgba(7,8,7,0.9); 
-                           padding: 8px; border-radius: 4px; color: white;">
+                           padding: 4px; border-radius: 5px; color: white;">
                     ${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}<br>
-                    ${d.fragrance_notes || 'No fragrance notes'}
+                    ${d.fragrance || 'No fragrance notes'}
                 </div>
             `);
     })
@@ -964,15 +943,23 @@ function createBubbleChart() {
         d3.select(this)
             .transition()
             .duration(200)
-            .attr('r', 20);
+            .attr('r', 12);
         
         d3.selectAll('.tooltip').remove();
     });
 
+    // Add click event to close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('orchidModal');
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+
     // Set up simulation
     const simulation = d3.forceSimulation(globalData)
         .force('charge', d3.forceManyBody().strength(-30))
-        .force('collision', d3.forceCollide().radius(25))
+        .force('collision', d3.forceCollide().radius(10))
         .force('x', d3.forceX().x(d => {
             const center = genusPositions.get(d.taxonomic_names.Genus);
             return center ? center.x : 0;
@@ -1067,7 +1054,7 @@ function createFlowerCountPlot() {
     d3.select("#app1").selectAll("*").remove();
     
     // Set dimensions
-    const width = 180;
+    const width =220;
     const height = 60;
     const margin = { top: 10, right: 10, bottom: 10, left: 10 };
     
@@ -1107,46 +1094,142 @@ function createFlowerCountPlot() {
         .domain([0, max])
         .range([margin.left, width - margin.right]);
     
-    // Create SVG
+        const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
     const svg = d3.select("#app1")
         .append("svg")
         .attr("width", width)
         .attr("height", height)
         .style("overflow", "visible");
-    
-    // Add box
+
+    // Helper function to highlight matching bubbles
+    function highlightMatchingBubbles(minVal, maxVal) {
+        d3.select('#app5')
+            .selectAll('circle')
+            .filter(orchid => {
+                const flowerCount = processNumericValue(orchid.flower_count);
+                return flowerCount >= minVal && flowerCount <= maxVal;
+            })
+            .style("stroke", "#BBFFB0")
+            .style("stroke-width", "1.3px");
+    }
+
+    // Helper function to reset bubbles
+    function resetBubbles() {
+        d3.select('#app5')
+            .selectAll('circle')
+            .style("stroke", "#333")
+            .style("stroke-width", "0px");
+    }
+
+    // Add box with tooltip and highlighting
     svg.append("rect")
         .attr("x", xScale(q1))
         .attr("y", height/2 - 10)
         .attr("width", xScale(q3) - xScale(q1))
         .attr("height", 20)
         .attr("fill", "#BBFFB0")
-        .attr("opacity", 0.5);
-    
-    // Add median line
+        .attr("opacity", 0.5)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`One usually has ${q1.toFixed(0)}-${q3.toFixed(0)} flowers`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            highlightMatchingBubbles(q1, q3);
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            resetBubbles();
+        });
+
+    // Add median line with tooltip and highlighting
     svg.append("line")
         .attr("x1", xScale(median))
         .attr("x2", xScale(median))
-        .attr("y1", height/2 - 10)
-        .attr("y2", height/2 + 10)
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
         .attr("stroke", "#BBFFB0")
-        .attr("stroke-width", 2);
-    
-    // Add min line
+        .attr("stroke-width", 2)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Median: ${median.toFixed(0)} flowers`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            highlightMatchingBubbles(median - 0.1, median + 0.1);
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            resetBubbles();
+        });
+
+    // Add min line with tooltip and highlighting
     svg.append("line")
         .attr("x1", xScale(min))
         .attr("x2", xScale(min))
-        .attr("y1", height/2 - 5)
-        .attr("y2", height/2 + 5)
-        .attr("stroke", "#BBFFB0");
-    
-    // Add max line
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
+        .attr("stroke", "#BBFFB0")
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Minimum: ${min.toFixed(0)} flowers`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            highlightMatchingBubbles(min - 0.1, min + 0.1);
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            resetBubbles();
+        });
+
+    // Add max line with tooltip and highlighting
     svg.append("line")
         .attr("x1", xScale(max))
         .attr("x2", xScale(max))
-        .attr("y1", height/2 - 5)
-        .attr("y2", height/2 + 5)
-        .attr("stroke", "#BBFFB0");
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
+        .attr("stroke", "#BBFFB0")
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Maximum: ${max.toFixed(0)} flowers`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            highlightMatchingBubbles(max - 0.1, max + 0.1);
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            resetBubbles();
+        });
+
     
     // Add axis
     const xAxis = d3.axisBottom(xScale)
@@ -1158,7 +1241,7 @@ function createFlowerCountPlot() {
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(xAxis)
         .style("font-family", "PPFranktionMono")
-        .style("font-size", "10px")
+        .style("font-size", "0.5rem")
         .style("color", "white");
 
     // Style axis
@@ -1174,7 +1257,7 @@ function createInflorescencePlot() {
     d3.select("#app2").selectAll("*").remove();
     
     // Set dimensions - same as flower count plot
-    const width = 180;
+    const width = 220;
     const height = 60;
     const margin = { top: 10, right: 10, bottom: 10, left: 10 };
     
@@ -1219,46 +1302,173 @@ function createInflorescencePlot() {
         .domain([0, max])
         .range([margin.left, width - margin.right]);
     
-    // Create SVG
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
     const svg = d3.select("#app2")
         .append("svg")
         .attr("width", width)
         .attr("height", height)
         .style("overflow", "visible");
-    
-    // Add box
+
+    // Add box with tooltip
     svg.append("rect")
         .attr("x", xScale(q1))
         .attr("y", height/2 - 10)
         .attr("width", xScale(q3) - xScale(q1))
         .attr("height", 20)
         .attr("fill", "#BBFFB0")
-        .attr("opacity", 0.5);
-    
-    // Add median line
+        .attr("opacity", 0.5)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Orchids are usually ${q1.toFixed(0)}-${q3.toFixed(0)} inches tall`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            // Highlight matching bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .filter(orchid => {
+                    if (!orchid.inflorescence_length) return false;
+                    const length = processNumericValue(orchid.inflorescence_length.replace('"', ''));
+                    return length >= q1 && length <= q3;
+                })
+                .style("stroke", "#BBFFB0")
+                .style("stroke-width", "1.3px");
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            // Reset bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .style("stroke", "#333")
+                .style("stroke-width", "0px");
+        });
+
+    // Add median line with tooltip
     svg.append("line")
         .attr("x1", xScale(median))
         .attr("x2", xScale(median))
-        .attr("y1", height/2 - 10)
-        .attr("y2", height/2 + 10)
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
         .attr("stroke", "#BBFFB0")
-        .attr("stroke-width", 2);
-    
-    // Add min line
+        .attr("stroke-width", 2)
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Median: ${median.toFixed(0)} inches tall`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            // Highlight matching bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .filter(orchid => {
+                    if (!orchid.inflorescence_length) return false;
+                    const length = processNumericValue(orchid.inflorescence_length.replace('"', ''));
+                    return Math.abs(length - median) <= 0.1;
+                })
+                .style("stroke", "#BBFFB0")
+                .style("stroke-width", "1.3px");
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            // Reset bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .style("stroke", "#333")
+                .style("stroke-width", "0px");
+        });
+
+    // Add min line with tooltip
     svg.append("line")
         .attr("x1", xScale(min))
         .attr("x2", xScale(min))
-        .attr("y1", height/2 - 5)
-        .attr("y2", height/2 + 5)
-        .attr("stroke", "#BBFFB0");
-    
-    // Add max line
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
+        .attr("stroke", "#BBFFB0")
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Minimum: ${min.toFixed(0)} inches tall`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            // Highlight matching bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .filter(orchid => {
+                    if (!orchid.inflorescence_length) return false;
+                    const length = processNumericValue(orchid.inflorescence_length.replace('"', ''));
+                    return Math.abs(length - min) <= 0.1;
+                })
+                .style("stroke", "#BBFFB0")
+                .style("stroke-width", "1.3px");
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            // Reset bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .style("stroke", "#333")
+                .style("stroke-width", "0px");
+        });
+
+    // Add max line with tooltip
     svg.append("line")
         .attr("x1", xScale(max))
         .attr("x2", xScale(max))
-        .attr("y1", height/2 - 5)
-        .attr("y2", height/2 + 5)
-        .attr("stroke", "#BBFFB0");
+        .attr("y1", height/2 - 20)
+        .attr("y2", height/2 + 20)
+        .attr("stroke", "#BBFFB0")
+        .style("cursor", "pointer")
+        .on("mouseover", function(event) {
+            const tooltip = d3.select(".tooltip");
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`Maximum: ${max.toFixed(0)} inches tall`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+            
+            // Highlight matching bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .filter(orchid => {
+                    if (!orchid.inflorescence_length) return false;
+                    const length = processNumericValue(orchid.inflorescence_length.replace('"', ''));
+                    return Math.abs(length - max) <= 0.1;
+                })
+                .style("stroke", "#BBFFB0")
+                .style("stroke-width", "1.3px");
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").transition()
+                .duration(500)
+                .style("opacity", 0);
+            // Reset bubbles
+            d3.select('#app5')
+                .selectAll('circle')
+                .style("stroke", "#333")
+                .style("stroke-width", "1px");
+        });
     
     // Add axis
     const xAxis = d3.axisBottom(xScale)
@@ -1270,7 +1480,7 @@ function createInflorescencePlot() {
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(xAxis)
         .style("font-family", "PPFranktionMono")
-        .style("font-size", "10px")
+        .style("font-size", "0.5rem")
         .style("color", "white");
 
     // Style axis

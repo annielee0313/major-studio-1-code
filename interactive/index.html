@@ -10,14 +10,6 @@
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-  <div id="loading-screen" class="fixed inset-0 z-50 bg-[#041604] flex flex-col items-center justify-center">
-    <h1 class="text-[#BBFFB0] text-4xl font-snell mb-8">Blooming Orchidaceaes</h1>
-    <div class="loading-spinner w-16 h-16 relative">
-        <div class="absolute w-16 h-16 border-4 border-[#BBFFB0] rounded-full animate-ping opacity-75"></div>
-        <div class="absolute w-16 h-16 border-4 border-[#BBFFB0] border-t-transparent rounded-full animate-spin"></div>
-    </div>
-    <p class="text-white font-mono mt-4 text-sm">Loading orchids...</p>
-  </div>
 
   <div id="title">Blooming Orchidaceaes
     <svg id="info-icon" width="20" height="20" viewBox="0 0 24 24">
@@ -46,14 +38,20 @@
   <div id="subtitle">Explore the Smithsonian Orchids Collection</div>
 
   <!-- Spec Sheet -->
+  <div class="spec-sheet-title">
+    <span class="title-text">
+        <span class="pollinator-name">All</span> 
+        <span class="title-suffix">Orchids in</span> 
+        <span class="month-name">January</span>
+    </span>
+  </div>
   <div class="spec-sheet">
-    <div class="spec-sheet-title">
-      <span class="title-text">
-          <span class="pollinator-name">All</span> 
-          <span class="title-suffix">Orchids in</span> 
-          <span class="month-name">January</span>
-      </span>
-    </div>
+
+      <!-- Color palette -->
+      <div class="color-palette">
+        <p>Colors</p>
+        <div id="app3"></div>
+      </div>
       
       <!-- Boxes for measurements -->
       <div class="measurement-box">
@@ -62,14 +60,8 @@
       </div>
       
       <div class="measurement-box">
-          <p>Length of Inflorescence<p>
+          <p>Length of Inflorescence (inches)<p>
           <div id="app2"></div>
-      </div>
-      
-      <!-- Color palette -->
-      <div class="color-palette">
-          <p>Colors</p>
-          <div id="app3"></div>
       </div>
       
       <!-- Fragrance profile chart -->
@@ -81,8 +73,25 @@
 
   <div class="main-content">
       <div id="app5"></div>
-      <div id="pollinator-buttons"></div>
   </div>
+
+  <div id="orchidModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-image">
+            <img src="" alt="Orchid Image">
+        </div>
+        <div class="modal-details">
+            <h2 class="modal-title"></h2>
+            <div class="modal-field" id="commonname"></div>
+            <div class="modal-field" id="pollination"></div>
+            <div class="modal-field" id="fragrance"></div>
+            <div class="modal-field" id="bloom"></div>
+            <a href="#" class="modal-link" target="_blank">View Source</a>
+        </div>
+    </div>
+  </div>
+
+  <div id="pollinator-buttons"></div>
 
   <div id="content">
     <div class="scroll-content"></div>
@@ -97,8 +106,6 @@
 
   <script src="https://unpkg.com/d3-interpolate-path"></script>
   <script src="libraries/vibrant.js"></script>
-  <script src="loading.js"></script>
-  <script type="module" src="boxplot.js"></script>
   <script type="module" src="main.js"></script>
 
 </body>
