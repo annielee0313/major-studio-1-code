@@ -30,11 +30,11 @@ function getOrCreateTooltip() {
                 .style("position", "absolute")
                 .style("pointer-events", "none")
                 .style("background", "rgba(7,8,7,0.9)")
-                .style("padding", "8px")
+                .style("padding", "5px")
                 .style("border-radius", "4px")
                 .style("color", "white")
                 .style("font-family", "PPFranktionMono")
-                .style("font-size", "12px")
+                .style("font-size", "1rem")
                 .style("z-index", "9999");
         }
         return tooltip;
@@ -95,7 +95,7 @@ var margin = {
 };
 
 var width = getSpecSheetWidth();
-var height = width; 
+var height = width + 20; 
 var innerRadius = width * 0.13; 
 var outerRadius = width * 0.45; 
 
@@ -332,7 +332,7 @@ const bars = svg.append("g")
         .style("z-index", 9999);
         
     const currentCount = currentFilteredCounts.get(d.note)?.count || 0;
-    tooltip.html(`${toTitleCase(d.fragranceType)}: ${toTitleCase(d.note)}: ${currentCount}`)
+    tooltip.html(`${toTitleCase(d.fragranceType)} (${toTitleCase(d.note)}): ${currentCount}`)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 10) + "px");
 
@@ -448,7 +448,8 @@ function showFragranceModal(fragranceData) {
                     .style("opacity", 0.9);
                 tooltip.html(`${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`)
                     .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 10) + "px");
+                    .style("top", (event.pageY - 10) + "px")
+                    ;
             });
             
             gridItem.addEventListener('mouseout', () => {
@@ -991,7 +992,6 @@ function createBubbleChart() {
                     d3.select('.loading-overlay').remove();
                 });
 
-            // Start simulation with a bit more energy
             simulation.alpha(1).restart();
         }
     }
@@ -1082,7 +1082,7 @@ function createBubbleChart() {
         event.stopPropagation(); // Prevent event from bubbling up
     });
 
-    // Add hover effects (keep existing hover code)
+    // Add hover effects
     nodes.on('mouseover', function(event, d) {
         if (d3.select(this).style('opacity') < 1) return;
 
@@ -1092,7 +1092,6 @@ function createBubbleChart() {
             .duration(200)
             .attr('r', 80);
     
-        // Use the global tooltip instead of creating a new one
         tooltip.transition()
             .duration(200)
             .style("opacity", 0.9)
@@ -1100,9 +1099,8 @@ function createBubbleChart() {
             
         tooltip.html(`
             <div style="font-family: PPFranktionMono; background: rgba(7,8,7,0.9); 
-                       padding: 4px; border-radius: 5px; color: white;">
+                 font-size: 0.8rem; border-radius: 5px; color: white;">
                 ${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}<br>
-                ${d.fragrance || 'No fragrance notes'}
             </div>
         `)
             .style("left", (event.pageX + 10) + "px")

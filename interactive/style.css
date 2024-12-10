@@ -35,8 +35,8 @@ body {
     z-index: 2;
     top: 2%;
     position: fixed;
-    font-size: 3rem;
     color: #BBFFB0;
+    font-size: 3rem;
     font-family: 'SnellBT', sans-serif;
     left: 50%;
     transform: translateX(-50%);
@@ -144,14 +144,16 @@ body {
     padding: 8px;
     z-index: 11;
     cursor: default;
+    border-bottom: 1px solid white;
 }
+
 
 .spec-sheet p {
     color: white;
     text-align: left;
     margin: 0;  /* Optional: removes default paragraph margins */
     font-family: 'PPFranktionMono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     padding-bottom: 0.3rem;
     cursor: default;
 }
@@ -246,7 +248,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'PPFranktionMono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     border-radius: 0;
     margin: 0;
     position: relative;
