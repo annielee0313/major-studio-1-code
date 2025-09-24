@@ -526,7 +526,7 @@ function showFragranceModal(fragranceData) {
 // Helper function to show orchid modal (reuse existing orchid modal)
 function showOrchidModal(orchid) {
     const modal = document.getElementById('orchidModal');
-    const modalImg = modal.querySelector('.modal-image img');
+    const modalImgContainer = modal.querySelector('.modal-image');
     const modalTitle = modal.querySelector('.modal-title');
     const modalCommonname = modal.querySelector('#commonname');
     const modalPollination = modal.querySelector('#pollination');
@@ -534,11 +534,17 @@ function showOrchidModal(orchid) {
     const modalBloom = modal.querySelector('#bloom');
     const modalLink = modal.querySelector('.modal-link');
 
-    modalImg.src = getImageUrl(orchid.image_url, 400); // Larger image for modal
-    modalImg.onerror = function() {
-        console.warn('Failed to load modal image:', this.src);
-        this.style.display = 'none';
-    };
+    // Clear existing image and create new one with proper error handling
+    modalImgContainer.innerHTML = '';
+    const newImg = createImageElement(
+        getImageUrl(orchid.image_url, 400), // Larger image for modal
+        `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`,
+        'modal-img'
+    );
+    // Set styles to match original modal image styling
+    newImg.style.width = '100%';
+    newImg.style.height = 'auto';
+    modalImgContainer.appendChild(newImg);
     modalTitle.textContent = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
     modalCommonname.textContent = `Common Name: ${orchid.common_name || 'Unknown'}`;
     modalPollination.textContent = `Pollinator: ${orchid.pollination_syndrome || 'Unknown'}`;
@@ -1160,7 +1166,7 @@ function createBubbleChart() {
     // Add click event for modal
     nodes.on('click', function(event, d) {
         const modal = document.getElementById('orchidModal');
-        const modalImg = modal.querySelector('.modal-image img');
+        const modalImgContainer = modal.querySelector('.modal-image');
         const modalTitle = modal.querySelector('.modal-title');
         const modalCommonname = modal.querySelector('#commonname');
         const modalPollination = modal.querySelector('#pollination');
@@ -1168,8 +1174,18 @@ function createBubbleChart() {
         const modalBloom = modal.querySelector('#bloom');
         const modalLink = modal.querySelector('.modal-link');
 
-        // Set content
-        modalImg.src = d.image_url;
+        // Clear existing image and create new one with proper error handling
+        modalImgContainer.innerHTML = '';
+        const newImg = createImageElement(
+            getImageUrl(d.image_url, 400),
+            `${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}`,
+            'modal-img'
+        );
+        // Set styles to match original modal image styling
+        newImg.style.width = '100%';
+        newImg.style.height = 'auto';
+        modalImgContainer.appendChild(newImg);
+        
         modalTitle.textContent = `${d.taxonomic_names.Genus} ${d.taxonomic_names.Species}`;
         modalCommonname.textContent = `Common Name: ${d.common_name || 'Unknown'}`;
         modalPollination.textContent = `Pollinator: ${d.pollination_syndrome || 'Unknown'}`;
