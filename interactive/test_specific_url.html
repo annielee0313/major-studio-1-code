@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Specific Image URL</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            line-height: 1.6;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        .success {
+            border-color: #4CAF50;
+            background: #1a2a1a;
+        }
+        .error {
+            border-color: #f44336;
+            background: #2a1a1a;
+        }
+        img {
+            max-width: 300px;
+            margin: 10px 0;
+            border: 1px solid #666;
+        }
+        .broken-img {
+            background: #333;
+            width: 200px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Problematic Image URL</h1>
+    
+    <div class="test-case">
+        <h3>Original URL (the one causing issues):</h3>
+        <p><code>https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102-EL-000001&max_w=200</code></p>
+        <div id="test1"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>Alternative URL formats to try:</h3>
+        <div id="alternatives"></div>
+    </div>
+
+    <div class="test-case">
+        <h3>Pattern Analysis:</h3>
+        <p>The URL contains <strong>-EL-000001</strong> which might be a problematic pattern.</p>
+        <p>Let's test if similar patterns work:</p>
+        <div id="pattern-tests"></div>
+    </div>
+
+    <script>
+        const problematicUrl = 'https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102-EL-000001';
+        
+        // Test the main problematic URL
+        function testImage(url, containerId) {
+            const container = document.getElementById(containerId);
+            const img = new Image();
+            
+            const startTime = Date.now();
+            
+            img.onload = function() {
+                const loadTime = Date.now() - startTime;
+                container.className = 'test-case success';
+                container.innerHTML += `
+                    <p>✅ <strong>SUCCESS</strong> (loaded in ${loadTime}ms)</p>
+                    <p>Dimensions: ${this.naturalWidth}x${this.naturalHeight}</p>
+                    <img src="${url}" alt="Loaded successfully">
+                `;
+            };
+            
+            img.onerror = function() {
+                const loadTime = Date.now() - startTime;
+                container.className = 'test-case error';
+                container.innerHTML += `
+                    <p>❌ <strong>FAILED</strong> (failed after ${loadTime}ms)</p>
+                    <p>This image URL returns a 404 or is otherwise inaccessible.</p>
+                    <div class="broken-img">Image not found</div>
+                `;
+            };
+            
+            img.src = url;
+            
+            // Timeout after 15 seconds
+            setTimeout(() => {
+                if (!img.complete) {
+                    container.className = 'test-case error';
+                    container.innerHTML += `
+                        <p>⏰ <strong>TIMEOUT</strong> (after 15 seconds)</p>
+                        <p>The request timed out - server might be slow or image doesn't exist.</p>
+                    `;
+                }
+            }, 15000);
+        }
+        
+        // Test alternative formats
+        function testAlternatives() {
+            const baseId = 'SG-2011-2071A-102-EL-000001';
+            const alternatives = [
+                // Try different parameters
+                `https://ids.si.edu/ids/deliveryService?id=${baseId}&max=200`,
+                `https://ids.si.edu/ids/deliveryService?id=${baseId}&max_w=300`,
+                `https://ids.si.edu/ids/deliveryService?id=${baseId}`,
+                // Try without the -EL-000001 suffix
+                `https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102&max_w=200`,
+                `https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102`,
+                // Try different suffix variations
+                `https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102-000001&max_w=200`,
+                `https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-101&max_w=200`
+            ];
+            
+            const container = document.getElementById('alternatives');
+            container.innerHTML = '<p>Testing alternative URL formats...</p>';
+            
+            alternatives.forEach((url, index) => {
+                const testDiv = document.createElement('div');
+                testDiv.id = `alt-${index}`;
+                testDiv.innerHTML = `<h4>Testing: <code>${url}</code></h4>`;
+                container.appendChild(testDiv);
+                
+                setTimeout(() => testImage(url, `alt-${index}`), index * 2000); // Stagger tests
+            });
+        }
+        
+        // Test similar patterns from your data
+        function testSimilarPatterns() {
+            const similarUrls = [
+                'https://ids.si.edu/ids/deliveryService?id=SG-2017-0326D-101-EL-000001&max_w=200',
+                'https://ids.si.edu/ids/deliveryService?id=SG-2018-0115A-102-EL-000001&max_w=200',
+                'https://ids.si.edu/ids/deliveryService?id=SG-2015-1368A-101-EL-000001&max_w=200'
+            ];
+            
+            const container = document.getElementById('pattern-tests');
+            container.innerHTML = '<p>Testing similar -EL-000001 pattern URLs...</p>';
+            
+            similarUrls.forEach((url, index) => {
+                const testDiv = document.createElement('div');
+                testDiv.id = `pattern-${index}`;
+                testDiv.innerHTML = `<h4>Testing: <code>${url}</code></h4>`;
+                container.appendChild(testDiv);
+                
+                setTimeout(() => testImage(url, `pattern-${index}`), index * 3000); // Stagger tests
+            });
+        }
+        
+        // Run tests
+        document.addEventListener('DOMContentLoaded', () => {
+            testImage(problematicUrl + '&max_w=200', 'test1');
+            setTimeout(testAlternatives, 5000);
+            setTimeout(testSimilarPatterns, 15000);
+        });
+    </script>
+</body>
+</html>

@@ -43,6 +43,53 @@ function getOrCreateTooltip() {
 // Add months array at the top level
 const months = ['All', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+// Helper function to safely create image URLs with parameters
+function getImageUrl(baseUrl, width = 200, height = null) {
+    if (!baseUrl) return null;
+    
+    // Check if URL already has max_w parameter to avoid duplicates
+    if (baseUrl.includes('max_w=') || baseUrl.includes('max_h=')) {
+        return baseUrl;
+    }
+    
+    let params = `&max_w=${width}`;
+    if (height) {
+        params += `&max_h=${height}`;
+    }
+    
+    return baseUrl + params;
+}
+
+// Helper function to create image element with error handling
+function createImageElement(src, alt = '', className = '') {
+    const img = document.createElement('img');
+    if (className) img.className = className;
+    if (alt) img.alt = alt;
+    
+    // Add error handling
+    img.onerror = function() {
+        console.warn('Failed to load image:', src);
+        // Create dark grey placeholder
+        this.style.backgroundColor = '#404040';
+        this.style.border = '1px solid #555';
+        this.style.minWidth = '100px';
+        this.style.minHeight = '75px';
+        this.style.display = 'block';
+        this.src = 'data:image/svg+xml;base64,' + btoa(`
+            <svg width="100" height="75" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100%" height="100%" fill="#404040"/>
+                <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="10" 
+                      fill="#666" text-anchor="middle" dominant-baseline="middle">
+                    Image not available
+                </text>
+            </svg>
+        `);
+    };
+    
+    img.src = src;
+    return img;
+}
+
 
 const POLLINATOR_TYPES = [
     "All",
@@ -201,12 +248,7 @@ d3.json(datasetURL).then(data => {
   // Store data globally
   globalData = data;
 
-  // Modify image URLs to include &max_w=200
-  data.forEach(d => {
-    if (d.image_url) {
-      d.image_url = `${d.image_url}&max_w=200`;
-    }
-  });
+  // Don't modify URLs here - we'll add parameters when needed
 
   // Create a map to hold counts of unique fragrance notes across all entries, grouped by type
   const fragranceNoteCounts = new Map();
@@ -437,9 +479,10 @@ function showFragranceModal(fragranceData) {
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item';
             
-            const img = document.createElement('img');
-            img.src = `${orchid.image_url}&max_w=100`; // Small image size for grid
-            img.alt = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
+            const img = createImageElement(
+                getImageUrl(orchid.image_url, 100), // Small image size for grid
+                `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`
+            );
             
             // Add tooltip on hover
             gridItem.addEventListener('mouseover', (event) => {
@@ -491,7 +534,11 @@ function showOrchidModal(orchid) {
     const modalBloom = modal.querySelector('#bloom');
     const modalLink = modal.querySelector('.modal-link');
 
-    modalImg.src = orchid.image_url;
+    modalImg.src = getImageUrl(orchid.image_url, 400); // Larger image for modal
+    modalImg.onerror = function() {
+        console.warn('Failed to load modal image:', this.src);
+        this.style.display = 'none';
+    };
     modalTitle.textContent = `${orchid.taxonomic_names.Genus} ${orchid.taxonomic_names.Species}`;
     modalCommonname.textContent = `Common Name: ${orchid.common_name || 'Unknown'}`;
     modalPollination.textContent = `Pollinator: ${orchid.pollination_syndrome || 'Unknown'}`;
@@ -831,7 +878,9 @@ function updateColorSwatches() {
     // Process all filtered data
     filteredData.forEach((d) => {
         if (d.image_url) {
-            Vibrant.from(`${d.image_url}&max_w=200`).getPalette((err, palette) => {
+            const imageUrl = getImageUrl(d.image_url, 200);
+            if (imageUrl) {
+                Vibrant.from(imageUrl).getPalette((err, palette) => {
                 if (!err && palette) {
                     // Prioritize Vibrant and LightVibrant for flower colors
                     if (palette.Vibrant) allColors.push(palette.Vibrant.getHex());
@@ -856,7 +905,14 @@ function updateColorSwatches() {
                 if (processed === filteredData.length) {
                     displayColorSwatches(allColors);
                 }
-            });
+                });
+            }
+        } else {
+            // No image URL, still count as processed
+            processed++;
+            if (processed === filteredData.length) {
+                displayColorSwatches([]);
+            }
         }
     });
 }
@@ -969,32 +1025,55 @@ function createBubbleChart() {
         .attr('transform', `translate(${width/2}, ${height/2})`);
 
     let loadedImages = 0;
-    const totalImages = globalData.length;
+    let processedImages = 0; // Track both loaded and failed images
+    const totalImages = globalData.filter(d => d.image_url).length; // Only count items with image URLs
 
-    // Function to track image loading
-    function onImageLoad() {
-        loadedImages++;
-        loadingOverlay.text(`Loading orchids... ${Math.round((loadedImages/totalImages) * 100)}%`);
+    // Function to track image loading (both success and failure)
+    function onImageProcessed() {
+        processedImages++;
+        loadingOverlay.text(`Loading orchids... ${Math.round((processedImages/totalImages) * 100)}%`);
         
-        if (loadedImages === totalImages) {
-            // All images loaded, start the visualization
-            d3.select('#app5').select('svg')
-                .transition()
-                .duration(500)
-                .style('opacity', 1);
-                
-            loadingOverlay
-                .transition()
-                .duration(500)
-                .style('opacity', 0)
-                .end()
-                .then(() => {
-                    d3.select('.loading-overlay').remove();
-                });
-
-            simulation.alpha(1).restart();
+        if (processedImages >= totalImages) {
+            showVisualization();
         }
     }
+    
+    function onImageLoad() {
+        loadedImages++;
+        onImageProcessed();
+    }
+    
+    function onImageError() {
+        // Still count failed images as processed
+        onImageProcessed();
+    }
+    
+    // Function to show the visualization
+    function showVisualization() {
+        d3.select('#app5').select('svg')
+            .transition()
+            .duration(500)
+            .style('opacity', 1);
+            
+        loadingOverlay
+            .transition()
+            .duration(500)
+            .style('opacity', 0)
+            .end()
+            .then(() => {
+                d3.select('.loading-overlay').remove();
+            });
+
+        simulation.alpha(1).restart();
+    }
+    
+    // Fallback: show visualization after 10 seconds regardless
+    setTimeout(() => {
+        if (processedImages < totalImages) {
+            console.log(`Timeout: showing visualization with ${processedImages}/${totalImages} images processed`);
+            showVisualization();
+        }
+    }, 10000);
 
     // Create image patterns for nodes
     function createImagePattern(d) {
@@ -1008,17 +1087,38 @@ function createBubbleChart() {
             .attr('patternContentUnits', 'objectBoundingBox');
 
         // Create image and track loading
-        const img = new Image();
-        img.onload = onImageLoad;
-        img.src = `${d.image_url}&max_w=200`;
-
-        pattern.append('image')
-            .attr('xlink:href', `${d.image_url}&max_w=200`)
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 1)
-            .attr('height', 1)
-            .attr('preserveAspectRatio', 'xMidYMid slice');
+        const imageUrl = getImageUrl(d.image_url, 200);
+        if (imageUrl) {
+            const img = new Image();
+            img.onload = function() {
+                // Only add SVG image if the actual image loads successfully
+                pattern.append('image')
+                    .attr('xlink:href', imageUrl)
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', 1)
+                    .attr('height', 1)
+                    .attr('preserveAspectRatio', 'xMidYMid slice');
+                onImageLoad();
+            };
+            img.onerror = function() {
+                console.warn('Failed to load bubble chart image:', imageUrl);
+                // Create a dark grey fallback pattern instead
+                pattern.append('rect')
+                    .attr('width', 1)
+                    .attr('height', 1)
+                    .attr('fill', '#404040'); // Dark grey placeholder
+                onImageError(); // Count this as processed
+            };
+            img.src = imageUrl;
+        } else {
+            // No valid image URL, create fallback
+            pattern.append('rect')
+                .attr('width', 1)
+                .attr('height', 1)
+                .attr('fill', '#404040'); // Dark grey placeholder
+            onImageError(); // Count this as processed
+        }
 
         return `url(#${patternId})`;
     }

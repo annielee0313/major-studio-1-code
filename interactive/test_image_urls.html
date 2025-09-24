@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image URL Testing</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid #333;
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background: #1a2a1a;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: #2a1a1a;
+        }
+        .working {
+            border-left-color: #2196F3;
+            background: #1a1a2a;
+        }
+        img {
+            max-width: 200px;
+            margin: 10px;
+            border: 1px solid #333;
+        }
+        .url-test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        .failed-image {
+            background: #2a1a1a;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image URL Testing Results</h1>
+    <div id="results"></div>
+
+    <script>
+        // Test URLs directly by trying to load them as images
+        const testUrls = [
+            'https://ids.si.edu/ids/deliveryService?id=SG-2016-0350A-101',
+            'https://ids.si.edu/ids/deliveryService?id=SG-2011-2071A-102-EL-000001',
+            'https://ids.si.edu/ids/deliveryService?id=SG-2020-0402A-PLT1-HL-000001',
+            'https://ids.si.edu/ids/deliveryService?id=SG-2008-3140A-101-000002',
+            'https://ids.si.edu/ids/deliveryService?id=SG-2009-1169_A_BR',
+            'https://ids.si.edu/ids/deliveryService?id=SG-2016-0352A-INF1-HL'
+        ];
+
+        const resultsDiv = document.getElementById('results');
+
+        function createTestResult(url, status, error = null) {
+            const div = document.createElement('div');
+            div.className = `test-result ${status}`;
+            
+            let content = `<strong>${url}</strong><br>Status: ${status}`;
+            if (error) {
+                content += `<br>Error: ${error}`;
+            }
+            
+            div.innerHTML = content;
+            return div;
+        }
+
+        function testImageUrl(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const timeoutId = setTimeout(() => {
+                    resolve({ status: 'timeout', error: 'Request timed out after 10 seconds' });
+                }, 10000);
+
+                img.onload = function() {
+                    clearTimeout(timeoutId);
+                    resolve({ status: 'working', image: img });
+                };
+
+                img.onerror = function() {
+                    clearTimeout(timeoutId);
+                    resolve({ status: 'error', error: 'Failed to load image' });
+                };
+
+                img.src = url;
+            });
+        }
+
+        async function runImageTests() {
+            resultsDiv.innerHTML = '<h2>Testing Image URLs...</h2>';
+            
+            for (const baseUrl of testUrls) {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'url-test';
+                testDiv.innerHTML = `<h3>Testing: ${baseUrl}</h3>`;
+                
+                const variations = [
+                    baseUrl,
+                    baseUrl + '&max_w=200',
+                    baseUrl + '&max_w=200&max_h=200',
+                    baseUrl + '&max=200'
+                ];
+
+                for (const url of variations) {
+                    const result = await testImageUrl(url);
+                    const resultDiv = createTestResult(url, result.status, result.error);
+                    
+                    if (result.status === 'working' && result.image) {
+                        const imgClone = result.image.cloneNode();
+                        imgClone.style.maxWidth = '150px';
+                        resultDiv.appendChild(imgClone);
+                    }
+                    
+                    testDiv.appendChild(resultDiv);
+                }
+                
+                resultsDiv.appendChild(testDiv);
+            }
+        }
+
+        // Also analyze the actual data
+        async function analyzeActualData() {
+            try {
+                const response = await fetch('./cleanedOrchidData.json');
+                const data = await response.json();
+                
+                const analysisDiv = document.createElement('div');
+                analysisDiv.innerHTML = '<h2>Data Analysis</h2>';
+                
+                // Test first 10 images from actual data
+                const testItems = data.slice(0, 20).filter(item => item.image_url);
+                
+                let workingCount = 0;
+                let failingCount = 0;
+                const failedUrls = [];
+
+                for (const item of testItems) {
+                    const url = item.image_url + '&max_w=200';
+                    const result = await testImageUrl(url);
+                    
+                    if (result.status === 'working') {
+                        workingCount++;
+                    } else {
+                        failingCount++;
+                        failedUrls.push({
+                            url: url,
+                            name: item.common_name,
+                            error: result.error
+                        });
+                    }
+                }
+
+                analysisDiv.innerHTML += `
+                    <div class="test-result working">
+                        <strong>Working URLs: ${workingCount}/${testItems.length}</strong>
+                    </div>
+                    <div class="test-result error">
+                        <strong>Failed URLs: ${failingCount}/${testItems.length}</strong>
+                    </div>
+                `;
+
+                if (failedUrls.length > 0) {
+                    analysisDiv.innerHTML += '<h3>Failed URLs:</h3>';
+                    failedUrls.forEach(failed => {
+                        const failedDiv = document.createElement('div');
+                        failedDiv.className = 'failed-image';
+                        failedDiv.innerHTML = `<strong>${failed.name}</strong><br>${failed.url}<br><em>${failed.error}</em>`;
+                        analysisDiv.appendChild(failedDiv);
+                    });
+                }
+
+                resultsDiv.appendChild(analysisDiv);
+                
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'test-result error';
+                errorDiv.innerHTML = `<strong>Error loading data:</strong> ${error.message}`;
+                resultsDiv.appendChild(errorDiv);
+            }
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await runImageTests();
+            await analyzeActualData();
+        });
+    </script>
+</body>
+</html>
