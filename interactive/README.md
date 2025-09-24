@@ -1,4 +1,16 @@
-## Interactive Ideas
+## Blooming Orchidaceaes
+### Live Link: https://annielee0313.github.io/major-studio-1-code/interactive/ 
+
+<img width="1920" alt="interactive-hero" src="https://github.com/user-attachments/assets/d50bed58-7a1f-4df9-949b-b90f4406d45d" />
+
+Project Description: Orchids evolves specific fragrances and bloom characteristics to attract their pollinators - from sweet honey scents for bees to nocturnal emissions for moths.  This interactive visualization explores the intricate world of orchid-pollinator relationships using the <a href="https://www.si.edu/OpenAccess">Smithsonian Open Access Data</a>. Scroll through the timeline and toggle through the filters to visualize how orchid characteristics like scent, flower count, and inflorescence length vary across different pollinator groups and seasons. 
+
+</br>
+</br>
+</br>
+
+
+## Process
 Figma Mock: https://www.figma.com/proto/HmTWzIVlzsNmgekhFD9uOr/Smithsonian?page-id=0%3A1&node-id=422-597&node-type=frame&viewport=-135%2C-2951%2C0.29&t=GJwa8zJtEOfFiplJ-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=422%3A597&show-proto-sidebar=1 
 
 ![Slide 16_9 - 4](https://github.com/user-attachments/assets/97f7f953-52ca-49e6-92c8-000108dcb66e)
